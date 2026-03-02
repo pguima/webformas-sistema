@@ -9,6 +9,7 @@ return [
         'files' => 'Files',
         'management' => 'Management',
         'users' => 'Users',
+        'widgets' => 'Widgets',
         'profile' => 'Profile',
         'settings' => 'Settings',
         'system' => 'System',
@@ -94,6 +95,68 @@ return [
             'cannot_delete_superadmin' => 'SuperAdmin cannot be deleted.',
             'cannot_delete_self' => 'A user cannot delete themselves.',
             'error_not_found' => 'User not found.',
+        ],
+    ],
+
+    'widgets' => [
+        'title' => 'Widgets',
+        'subtitle' => 'Manage and catalog widgets for the system.',
+        'add' => '+ Widget',
+        'search_placeholder' => 'Search widgets...',
+        'per_page' => 'Per page',
+        'no_results' => 'No widgets found matching ":search".',
+
+        'grid' => [
+            'no_image' => 'No image',
+        ],
+
+        'table' => [
+            'widget' => 'Widget',
+            'category' => 'Category',
+            'updated_at' => 'Updated at',
+            'actions' => 'Actions',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Create widget',
+            'create_description' => 'Create a new widget.',
+            'edit_title' => 'Edit widget',
+            'edit_description' => 'Update widget details.',
+        ],
+
+        'form' => [
+            'name' => 'Name',
+            'author' => 'Author',
+            'category' => 'Category',
+            'image' => 'Widget image',
+            'image_helper' => 'PNG, JPG, WEBP or GIF (max 4MB)',
+            'preview' => 'Preview',
+            'json_code' => 'JSON code',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+        ],
+
+        'validation' => [
+            'json_invalid' => 'The provided JSON code is invalid.',
+        ],
+
+        'delete' => [
+            'title' => 'Delete widget',
+            'warning' => 'Warning: This action cannot be undone.',
+            'confirm_help' => 'To confirm deletion, please type :word below:',
+            'placeholder' => 'Type :word',
+            'delete_permanently' => 'Delete permanently',
+        ],
+
+        'messages' => [
+            'success_title' => 'Success',
+            'error_title' => 'Error',
+            'json_copied' => 'JSON copied to clipboard.',
+            'copy_failed' => 'Could not copy JSON. Please try again or use HTTPS.',
+            'created_success' => 'Widget created successfully!',
+            'updated_success' => 'Widget updated successfully!',
+            'deleted_success' => 'Widget deleted successfully!',
+            'error_not_found' => 'Widget not found.',
         ],
     ],
 

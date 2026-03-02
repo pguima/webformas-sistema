@@ -68,6 +68,7 @@
                             'title' => 'app.sidebar.management',
                             'items' => [
                                 ['url' => '/users', 'icon' => 'solar:users-group-rounded-linear', 'label' => 'app.sidebar.users'],
+                                ['url' => '/widgets', 'icon' => 'solar:widget-4-linear', 'label' => 'app.sidebar.widgets'],
                             ]
                         ]]
                         : []),

@@ -116,6 +116,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ============================================
 Route::middleware(['auth', 'verified', 'role:SuperAdmin,Admin'])->group(function () {
     Route::get('/users', \App\Livewire\Users\Index::class);
+    Route::get('/widgets', \App\Livewire\Widgets\Index::class);
+
+    Route::get('/widgets/{widget}/json', function (\App\Models\Widget $widget) {
+        $json = json_encode($widget->json_code ?? [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+        if ($json === false) {
+            $json = '{}';
+        }
+
+        return response($json)
+            ->header('Content-Type', 'application/json; charset=UTF-8');
+    });
 
     Route::get('/settings/company', \App\Livewire\Settings\Company::class)->middleware('role:SuperAdmin');
 

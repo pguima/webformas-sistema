@@ -16,7 +16,18 @@ trait HasViewMode
      */
     public function mountHasViewMode()
     {
-        $this->viewMode = Session::get('viewMode', $this->getDefaultViewMode());
+        $mode = Session::get('viewMode');
+
+        if (is_array($mode)) {
+            $mode = null;
+        }
+
+        if (! is_string($mode) || ! in_array($mode, ['grid', 'list'], true)) {
+            $mode = $this->getDefaultViewMode();
+        }
+
+        $this->viewMode = $mode;
+        Session::put('viewMode', $mode);
     }
 
     /**
@@ -26,6 +37,15 @@ trait HasViewMode
      */
     public function updatedViewMode($value)
     {
+        if (is_array($value)) {
+            $value = null;
+        }
+
+        if (! is_string($value) || ! in_array($value, ['grid', 'list'], true)) {
+            $value = $this->getDefaultViewMode();
+        }
+
+        $this->viewMode = $value;
         Session::put('viewMode', $value);
     }
 

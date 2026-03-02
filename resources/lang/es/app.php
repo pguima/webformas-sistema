@@ -9,6 +9,7 @@ return [
         'files' => 'Archivos',
         'management' => 'Gestión',
         'users' => 'Usuarios',
+        'widgets' => 'Widgets',
         'profile' => 'Perfil',
         'settings' => 'Configuración',
         'system' => 'Sistema',
@@ -95,6 +96,68 @@ return [
             'cannot_delete_superadmin' => 'No se puede eliminar al SuperAdmin.',
             'cannot_delete_self' => 'Un usuario no puede eliminarse a sí mismo.',
             'error_not_found' => 'Usuario no encontrado.',
+        ],
+    ],
+
+    'widgets' => [
+        'title' => 'Widgets',
+        'subtitle' => 'Administra y cataloga widgets para el sistema.',
+        'add' => '+ Widget',
+        'search_placeholder' => 'Buscar widgets...',
+        'per_page' => 'Por página',
+        'no_results' => 'No se encontraron widgets para ":search".',
+
+        'grid' => [
+            'no_image' => 'Sin imagen',
+        ],
+
+        'table' => [
+            'widget' => 'Widget',
+            'category' => 'Categoría',
+            'updated_at' => 'Actualizado en',
+            'actions' => 'Acciones',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Crear widget',
+            'create_description' => 'Crea un nuevo widget.',
+            'edit_title' => 'Editar widget',
+            'edit_description' => 'Actualiza los datos del widget.',
+        ],
+
+        'form' => [
+            'name' => 'Nombre',
+            'author' => 'Autor',
+            'category' => 'Categoría',
+            'image' => 'Imagen del widget',
+            'image_helper' => 'PNG, JPG, WEBP o GIF (máx 4MB)',
+            'preview' => 'Vista previa',
+            'json_code' => 'Código JSON',
+            'cancel' => 'Cancelar',
+            'save' => 'Guardar',
+        ],
+
+        'validation' => [
+            'json_invalid' => 'El código JSON proporcionado no es válido.',
+        ],
+
+        'delete' => [
+            'title' => 'Eliminar widget',
+            'warning' => 'Advertencia: esta acción no se puede deshacer.',
+            'confirm_help' => 'Para confirmar la eliminación, escribe :word abajo:',
+            'placeholder' => 'Escribe :word',
+            'delete_permanently' => 'Eliminar definitivamente',
+        ],
+
+        'messages' => [
+            'success_title' => 'Éxito',
+            'error_title' => 'Error',
+            'json_copied' => 'JSON copiado al portapapeles.',
+            'copy_failed' => 'No se pudo copiar el JSON. Inténtalo de nuevo o usa HTTPS.',
+            'created_success' => '¡Widget creado con éxito!',
+            'updated_success' => '¡Widget actualizado con éxito!',
+            'deleted_success' => '¡Widget eliminado con éxito!',
+            'error_not_found' => 'Widget no encontrado.',
         ],
     ],
 

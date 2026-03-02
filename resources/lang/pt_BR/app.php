@@ -4,6 +4,7 @@ return [
     'sidebar' => [
         'dashboard' => 'Painel',
         'users' => 'Usuários',
+        'widgets' => 'Widgets',
         'profile' => 'Perfil',
         'settings' => 'Configurações',
         'system' => 'Sistema',
@@ -95,6 +96,68 @@ return [
             'cannot_delete_superadmin' => 'SuperAdmin não pode ser excluído.',
             'cannot_delete_self' => 'Um usuário não pode se excluir.',
             'error_not_found' => 'Usuário não encontrado.',
+        ],
+    ],
+
+    'widgets' => [
+        'title' => 'Widgets',
+        'subtitle' => 'Gerencie e catalogue widgets para o sistema.',
+        'add' => '+ Widget',
+        'search_placeholder' => 'Buscar widgets...',
+        'per_page' => 'Por página',
+        'no_results' => 'Nenhum widget encontrado para ":search".',
+
+        'grid' => [
+            'no_image' => 'Sem imagem',
+        ],
+
+        'table' => [
+            'widget' => 'Widget',
+            'category' => 'Categoria',
+            'updated_at' => 'Atualizado em',
+            'actions' => 'Ações',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Criar widget',
+            'create_description' => 'Cadastre um novo widget.',
+            'edit_title' => 'Editar widget',
+            'edit_description' => 'Atualize os dados do widget.',
+        ],
+
+        'form' => [
+            'name' => 'Nome',
+            'author' => 'Autor',
+            'category' => 'Categoria',
+            'image' => 'Imagem do Widget',
+            'image_helper' => 'PNG, JPG, WEBP ou GIF (máx 4MB)',
+            'preview' => 'Preview',
+            'json_code' => 'Código Json',
+            'cancel' => 'Cancelar',
+            'save' => 'Salvar',
+        ],
+
+        'validation' => [
+            'json_invalid' => 'O Código Json informado é inválido.',
+        ],
+
+        'delete' => [
+            'title' => 'Excluir widget',
+            'warning' => 'Atenção: esta ação não pode ser desfeita.',
+            'confirm_help' => 'Para confirmar a exclusão, digite :word abaixo:',
+            'placeholder' => 'Digite :word',
+            'delete_permanently' => 'Excluir definitivamente',
+        ],
+
+        'messages' => [
+            'success_title' => 'Sucesso',
+            'error_title' => 'Erro',
+            'json_copied' => 'JSON copiado para a área de transferência.',
+            'copy_failed' => 'Não foi possível copiar o JSON. Tente novamente ou use HTTPS.',
+            'created_success' => 'Widget criado com sucesso!',
+            'updated_success' => 'Widget atualizado com sucesso!',
+            'deleted_success' => 'Widget excluído com sucesso!',
+            'error_not_found' => 'Widget não encontrado.',
         ],
     ],
 
