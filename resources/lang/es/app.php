@@ -10,6 +10,8 @@ return [
         'management' => 'Gestión',
         'users' => 'Usuarios',
         'widgets' => 'Widgets',
+        'leads' => 'Leads',
+        'api_tokens' => 'Tokens API',
         'profile' => 'Perfil',
         'settings' => 'Configuración',
         'system' => 'Sistema',
@@ -158,6 +160,119 @@ return [
             'updated_success' => '¡Widget actualizado con éxito!',
             'deleted_success' => '¡Widget eliminado con éxito!',
             'error_not_found' => 'Widget no encontrado.',
+        ],
+    ],
+
+    'leads' => [
+        'title' => 'Leads',
+        'subtitle' => 'Administra leads en un tablero Kanban.',
+        'add' => '+ Lead',
+        'empty' => 'No se encontraron leads.',
+
+        'kanban' => [
+            'title' => 'Kanban',
+            'description' => 'Arrastra cards entre columnas para actualizar la etapa.',
+        ],
+
+        'list' => [
+            'title' => 'Lista',
+            'description' => 'Visualiza los leads en formato de tabla.',
+        ],
+
+        'table' => [
+            'name' => 'Nombre',
+            'whatsapp' => 'Whatsapp',
+            'stage' => 'Etapa',
+            'responsible' => 'Responsable',
+            'updated_at' => 'Actualizado',
+            'actions' => 'Acciones',
+        ],
+
+        'card' => [
+            'whatsapp' => 'Whatsapp',
+            'plan' => 'Plan',
+            'services' => 'Servicios',
+            'value' => 'Valor',
+            'responsible' => 'Responsable',
+            'origin' => 'Origen',
+            'campaign' => 'Campaña',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Nuevo lead',
+            'create_description' => 'Crea un nuevo lead.',
+            'edit_title' => 'Editar lead',
+            'edit_description' => 'Actualiza los datos del lead.',
+        ],
+
+        'form' => [
+            'name' => 'Nombre',
+            'whatsapp' => 'Whatsapp',
+            'plan' => 'Plan',
+            'services' => 'Servicios',
+            'value' => 'Valor',
+            'responsible' => 'Usuario responsable',
+            'responsible_empty' => 'Sin responsable',
+            'origin' => 'Origen',
+            'campaign' => 'Campaña',
+            'stage' => 'Etapa',
+            'cancel' => 'Cancelar',
+            'save' => 'Guardar',
+        ],
+
+        'messages' => [
+            'success_title' => 'Éxito',
+            'error_title' => 'Error',
+            'created_success' => '¡Lead creado con éxito!',
+            'updated_success' => '¡Lead actualizado con éxito!',
+            'deleted_success' => '¡Lead eliminado con éxito!',
+            'error_not_found' => 'Lead no encontrado.',
+        ],
+    ],
+
+    'api_tokens' => [
+        'title' => 'Tokens API',
+        'subtitle' => 'Administra tokens para integraciones externas.',
+        'add' => '+ Token',
+        'empty' => 'No se encontraron tokens.',
+
+        'list' => [
+            'title' => 'Tokens',
+            'description' => 'Crea y revoca tokens con permisos específicos.',
+        ],
+
+        'table' => [
+            'name' => 'Nombre',
+            'abilities' => 'Permisos',
+            'last_used_at' => 'Último uso',
+            'created_at' => 'Creado',
+            'actions' => 'Acciones',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Nuevo token',
+            'create_description' => 'Genera un token para autenticación Bearer.',
+        ],
+
+        'form' => [
+            'name' => 'Nombre',
+            'abilities' => 'Permisos (CSV)',
+            'abilities_help' => 'Ej.: leads.read, leads.write',
+            'cancel' => 'Cancelar',
+            'save' => 'Guardar',
+        ],
+
+        'token_once' => [
+            'title' => 'Copia este token ahora',
+            'description' => 'Por seguridad, este token se mostrará solo una vez.',
+        ],
+
+        'messages' => [
+            'success_title' => 'Éxito',
+            'error_title' => 'Error',
+            'created_success' => '¡Token creado con éxito!',
+            'deleted_success' => '¡Token revocado con éxito!',
+            'error_not_found' => 'Token no encontrado.',
         ],
     ],
 

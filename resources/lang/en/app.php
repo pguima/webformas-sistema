@@ -10,6 +10,8 @@ return [
         'management' => 'Management',
         'users' => 'Users',
         'widgets' => 'Widgets',
+        'leads' => 'Leads',
+        'api_tokens' => 'API Tokens',
         'profile' => 'Profile',
         'settings' => 'Settings',
         'system' => 'System',
@@ -157,6 +159,119 @@ return [
             'updated_success' => 'Widget updated successfully!',
             'deleted_success' => 'Widget deleted successfully!',
             'error_not_found' => 'Widget not found.',
+        ],
+    ],
+
+    'leads' => [
+        'title' => 'Leads',
+        'subtitle' => 'Manage leads in a Kanban board.',
+        'add' => '+ Lead',
+        'empty' => 'No leads found.',
+
+        'kanban' => [
+            'title' => 'Kanban',
+            'description' => 'Drag cards between columns to update the stage.',
+        ],
+
+        'list' => [
+            'title' => 'List',
+            'description' => 'View leads in a table format.',
+        ],
+
+        'table' => [
+            'name' => 'Name',
+            'whatsapp' => 'Whatsapp',
+            'stage' => 'Stage',
+            'responsible' => 'Responsible',
+            'updated_at' => 'Updated at',
+            'actions' => 'Actions',
+        ],
+
+        'card' => [
+            'whatsapp' => 'Whatsapp',
+            'plan' => 'Plan',
+            'services' => 'Services',
+            'value' => 'Value',
+            'responsible' => 'Responsible',
+            'origin' => 'Origin',
+            'campaign' => 'Campaign',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'New lead',
+            'create_description' => 'Create a new lead.',
+            'edit_title' => 'Edit lead',
+            'edit_description' => 'Update lead details.',
+        ],
+
+        'form' => [
+            'name' => 'Name',
+            'whatsapp' => 'Whatsapp',
+            'plan' => 'Plan',
+            'services' => 'Services',
+            'value' => 'Value',
+            'responsible' => 'Responsible user',
+            'responsible_empty' => 'No responsible',
+            'origin' => 'Origin',
+            'campaign' => 'Campaign',
+            'stage' => 'Stage',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+        ],
+
+        'messages' => [
+            'success_title' => 'Success',
+            'error_title' => 'Error',
+            'created_success' => 'Lead created successfully!',
+            'updated_success' => 'Lead updated successfully!',
+            'deleted_success' => 'Lead deleted successfully!',
+            'error_not_found' => 'Lead not found.',
+        ],
+    ],
+
+    'api_tokens' => [
+        'title' => 'API Tokens',
+        'subtitle' => 'Manage tokens for external integrations.',
+        'add' => '+ Token',
+        'empty' => 'No tokens found.',
+
+        'list' => [
+            'title' => 'Tokens',
+            'description' => 'Create and revoke tokens with specific permissions.',
+        ],
+
+        'table' => [
+            'name' => 'Name',
+            'abilities' => 'Abilities',
+            'last_used_at' => 'Last used',
+            'created_at' => 'Created at',
+            'actions' => 'Actions',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'New token',
+            'create_description' => 'Generate a token for Bearer authentication.',
+        ],
+
+        'form' => [
+            'name' => 'Name',
+            'abilities' => 'Abilities (CSV)',
+            'abilities_help' => 'Example: leads.read, leads.write',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+        ],
+
+        'token_once' => [
+            'title' => 'Copy this token now',
+            'description' => 'For security, this token will be shown only once.',
+        ],
+
+        'messages' => [
+            'success_title' => 'Success',
+            'error_title' => 'Error',
+            'created_success' => 'Token created successfully!',
+            'deleted_success' => 'Token revoked successfully!',
+            'error_not_found' => 'Token not found.',
         ],
     ],
 

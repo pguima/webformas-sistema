@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => RoleMiddleware::class,
+            'api_token' => \App\Http\Middleware\ApiTokenMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

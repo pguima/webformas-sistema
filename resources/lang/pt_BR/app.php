@@ -5,6 +5,8 @@ return [
         'dashboard' => 'Painel',
         'users' => 'Usuários',
         'widgets' => 'Widgets',
+        'leads' => 'Leads',
+        'api_tokens' => 'Tokens API',
         'profile' => 'Perfil',
         'settings' => 'Configurações',
         'system' => 'Sistema',
@@ -14,6 +16,119 @@ return [
         'folders' => 'Pastas',
         'files' => 'Arquivos',
         'management' => 'Gestão',
+    ],
+
+    'leads' => [
+        'title' => 'Leads',
+        'subtitle' => 'Gerencie leads em formato Kanban.',
+        'add' => '+ Lead',
+        'empty' => 'Nenhum lead encontrado.',
+
+        'kanban' => [
+            'title' => 'Kanban',
+            'description' => 'Arraste os cards entre colunas para atualizar a etapa.',
+        ],
+
+        'list' => [
+            'title' => 'Lista',
+            'description' => 'Visualize os leads em formato de tabela.',
+        ],
+
+        'table' => [
+            'name' => 'Nome',
+            'whatsapp' => 'Whatsapp',
+            'stage' => 'Etapa',
+            'responsible' => 'Responsável',
+            'updated_at' => 'Atualizado em',
+            'actions' => 'Ações',
+        ],
+
+        'card' => [
+            'whatsapp' => 'Whatsapp',
+            'plan' => 'Plano',
+            'services' => 'Serviços',
+            'value' => 'Valor',
+            'responsible' => 'Responsável',
+            'origin' => 'Origem',
+            'campaign' => 'Campanha',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Novo lead',
+            'create_description' => 'Cadastre um novo lead.',
+            'edit_title' => 'Editar lead',
+            'edit_description' => 'Atualize os dados do lead.',
+        ],
+
+        'form' => [
+            'name' => 'Nome',
+            'whatsapp' => 'Whatsapp',
+            'plan' => 'Plano',
+            'services' => 'Serviços',
+            'value' => 'Valor',
+            'responsible' => 'Usuário responsável',
+            'responsible_empty' => 'Sem responsável',
+            'origin' => 'Origem',
+            'campaign' => 'Campanha',
+            'stage' => 'Etapa',
+            'cancel' => 'Cancelar',
+            'save' => 'Salvar',
+        ],
+
+        'messages' => [
+            'success_title' => 'Sucesso',
+            'error_title' => 'Erro',
+            'created_success' => 'Lead criado com sucesso!',
+            'updated_success' => 'Lead atualizado com sucesso!',
+            'deleted_success' => 'Lead excluído com sucesso!',
+            'error_not_found' => 'Lead não encontrado.',
+        ],
+    ],
+
+    'api_tokens' => [
+        'title' => 'Tokens de API',
+        'subtitle' => 'Gerencie tokens para integrações externas.',
+        'add' => '+ Token',
+        'empty' => 'Nenhum token encontrado.',
+
+        'list' => [
+            'title' => 'Tokens',
+            'description' => 'Crie e revogue tokens com permissões específicas.',
+        ],
+
+        'table' => [
+            'name' => 'Nome',
+            'abilities' => 'Permissões',
+            'last_used_at' => 'Último uso',
+            'created_at' => 'Criado em',
+            'actions' => 'Ações',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Novo token',
+            'create_description' => 'Gere um token para autenticação via Bearer.',
+        ],
+
+        'form' => [
+            'name' => 'Nome',
+            'abilities' => 'Permissões (CSV)',
+            'abilities_help' => 'Ex.: leads.read, leads.write',
+            'cancel' => 'Cancelar',
+            'save' => 'Salvar',
+        ],
+
+        'token_once' => [
+            'title' => 'Copie este token agora',
+            'description' => 'Por segurança, este token será exibido apenas uma vez.',
+        ],
+
+        'messages' => [
+            'success_title' => 'Sucesso',
+            'error_title' => 'Erro',
+            'created_success' => 'Token criado com sucesso!',
+            'deleted_success' => 'Token revogado com sucesso!',
+            'error_not_found' => 'Token não encontrado.',
+        ],
     ],
 
     'dashboard' => [

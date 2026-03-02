@@ -69,6 +69,7 @@
                             'items' => [
                                 ['url' => '/users', 'icon' => 'solar:users-group-rounded-linear', 'label' => 'app.sidebar.users'],
                                 ['url' => '/widgets', 'icon' => 'solar:widget-4-linear', 'label' => 'app.sidebar.widgets'],
+                                ['url' => '/leads', 'icon' => 'solar:kanban-linear', 'label' => 'app.sidebar.leads'],
                             ]
                         ]]
                         : []),
@@ -78,6 +79,7 @@
                                 'title' => 'app.sidebar.system',
                                 'items' => [
                                     ['url' => '/settings/company', 'icon' => 'solar:settings-linear', 'label' => 'app.sidebar.settings'],
+                                    ['url' => '/settings/api-tokens', 'icon' => 'solar:key-square-linear', 'label' => 'app.sidebar.api_tokens'],
                                     ['url' => '/design-system', 'icon' => 'solar:palette-linear', 'label' => 'app.sidebar.design_system'],
                                 ]
                             ]

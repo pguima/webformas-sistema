@@ -17,6 +17,15 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
+Route::prefix('api')
+    ->middleware(['api_token'])
+    ->group(function () {
+        Route::get('/leads', [\App\Http\Controllers\Api\LeadController::class, 'index'])->middleware('api_token:leads.read');
+        Route::post('/leads', [\App\Http\Controllers\Api\LeadController::class, 'store'])->middleware('api_token:leads.write');
+        Route::put('/leads/{lead}', [\App\Http\Controllers\Api\LeadController::class, 'update'])->middleware('api_token:leads.write');
+        Route::delete('/leads/{lead}', [\App\Http\Controllers\Api\LeadController::class, 'destroy'])->middleware('api_token:leads.write');
+    });
+
 Route::get('/company-assets/{asset}', [CompanyAssetController::class, 'show'])
     ->whereIn('asset', ['logo-light', 'logo-dark', 'favicon', 'auth-side'])
     ->name('company.assets.show');
@@ -118,6 +127,8 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin,Admin'])->group(function
     Route::get('/users', \App\Livewire\Users\Index::class);
     Route::get('/widgets', \App\Livewire\Widgets\Index::class);
 
+    Route::get('/leads', \App\Livewire\Leads\Index::class);
+
     Route::get('/widgets/{widget}/json', function (\App\Models\Widget $widget) {
         $json = json_encode($widget->json_code ?? [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
@@ -130,6 +141,7 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin,Admin'])->group(function
     });
 
     Route::get('/settings/company', \App\Livewire\Settings\Company::class)->middleware('role:SuperAdmin');
+    Route::get('/settings/api-tokens', \App\Livewire\ApiTokens\Index::class)->middleware('role:SuperAdmin');
 
     Route::prefix('design-system')
         ->middleware('role:SuperAdmin')
