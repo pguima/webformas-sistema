@@ -266,6 +266,14 @@ return [
             'description' => 'For security, this token will be shown only once.',
         ],
 
+        'delete' => [
+            'title' => 'Revoke token',
+            'warning' => 'Warning: This action cannot be undone.',
+            'confirm_help' => 'To confirm revocation, please type :word below:',
+            'placeholder' => 'Type :word',
+            'delete_permanently' => 'Revoke token',
+        ],
+
         'messages' => [
             'success_title' => 'Success',
             'error_title' => 'Error',

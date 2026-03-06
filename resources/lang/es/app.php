@@ -267,6 +267,14 @@ return [
             'description' => 'Por seguridad, este token se mostrará solo una vez.',
         ],
 
+        'delete' => [
+            'title' => 'Revocar token',
+            'warning' => 'Advertencia: esta acción no se puede deshacer.',
+            'confirm_help' => 'Para confirmar la revocación, escribe :word abajo:',
+            'placeholder' => 'Escribe :word',
+            'delete_permanently' => 'Revocar token',
+        ],
+
         'messages' => [
             'success_title' => 'Éxito',
             'error_title' => 'Error',

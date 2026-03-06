@@ -28,7 +28,7 @@
                 type="button"
                 size="icon"
                 variant="{{ $viewMode === 'kanban' ? 'secondary' : 'ghost' }}"
-                icon="solar:kanban-linear"
+                icon="solar:notes-minimalistic-linear"
                 wire:click="$set('viewMode','kanban')"
                 wire:loading.attr="disabled"
             />
@@ -41,6 +41,9 @@
                 x-data="{
                     dragged: null,
                     columns: @js($columns),
+                    isPanning: false,
+                    panStartX: 0,
+                    panScrollLeft: 0,
 
                     badgeStyle(variant) {
                         const map = {
@@ -111,13 +114,63 @@
                     isDragging(leadId) {
                         return this.dragged && this.dragged.leadId === leadId;
                     },
+
+                    startPan(e) {
+                        if (e.button !== 1) return;
+                        const el = this.$refs.kanbanScroll;
+                        if (!el) return;
+                        this.isPanning = true;
+                        this.panStartX = e.pageX;
+                        this.panScrollLeft = el.scrollLeft;
+                        e.preventDefault();
+                    },
+
+                    movePan(e) {
+                        if (!this.isPanning) return;
+                        const el = this.$refs.kanbanScroll;
+                        if (!el) return;
+                        const dx = e.pageX - this.panStartX;
+                        el.scrollLeft = this.panScrollLeft - dx;
+                    },
+
+                    endPan() {
+                        this.isPanning = false;
+                    },
+
+                    onWheel(e) {
+                        const el = this.$refs.kanbanScroll;
+                        if (!el) return;
+
+                        const dx = Math.abs(e.deltaX || 0);
+                        const dy = Math.abs(e.deltaY || 0);
+
+                        if (dx > 0) {
+                            el.scrollLeft += e.deltaX;
+                            e.preventDefault();
+                            return;
+                        }
+
+                        if (dy > 0) {
+                            el.scrollLeft += e.deltaY;
+                            e.preventDefault();
+                        }
+                    },
                 }"
                 class="mt-2"
             >
-                <div class="flex gap-4 overflow-x-auto pb-2">
+                <div
+                    x-ref="kanbanScroll"
+                    class="flex gap-4 overflow-x-auto pb-3"
+                    style="scrollbar-width: thin; scrollbar-color: var(--border-default) transparent;"
+                    x-on:mousedown="startPan($event)"
+                    x-on:wheel="onWheel($event)"
+                    x-on:mousemove.window="movePan($event)"
+                    x-on:mouseup.window="endPan()"
+                    x-on:mouseleave.window="endPan()"
+                >
                     <template x-for="column in columns" :key="column.stage">
                         <div
-                            class="w-90 shrink-0 rounded-lg bg-(--surface-hover) p-4"
+                            class="w-80 shrink-0 rounded-lg bg-(--surface-hover) p-4"
                             x-on:dragover.prevent
                             x-on:drop.prevent="moveLead(column.stage)"
                         >
@@ -144,19 +197,45 @@
                                     >
                                         <div class="flex items-start justify-between gap-3">
                                             <div class="min-w-0">
-                                                <div class="text-sm font-semibold text-(--text-primary)" x-text="lead.name"></div>
-                                                <div class="mt-2 space-y-1 text-xs text-(--text-secondary)">
-                                                    <template x-if="lead.whatsapp"><div><span class="font-medium">{{ __('app.leads.card.whatsapp') }}:</span> <span x-text="lead.whatsapp"></span></div></template>
-                                                    <template x-if="lead.plan"><div><span class="font-medium">{{ __('app.leads.card.plan') }}:</span> <span x-text="lead.plan"></span></div></template>
-                                                    <template x-if="lead.services"><div class="line-clamp-2"><span class="font-medium">{{ __('app.leads.card.services') }}:</span> <span x-text="lead.services"></span></div></template>
-                                                    <template x-if="lead.value"><div><span class="font-medium">{{ __('app.leads.card.value') }}:</span> <span x-text="lead.value"></span></div></template>
-                                                    <template x-if="lead.responsible"><div><span class="font-medium">{{ __('app.leads.card.responsible') }}:</span> <span x-text="lead.responsible"></span></div></template>
-                                                    <template x-if="lead.origin"><div><span class="font-medium">{{ __('app.leads.card.origin') }}:</span> <span x-text="lead.origin"></span></div></template>
-                                                    <template x-if="lead.campaign"><div><span class="font-medium">{{ __('app.leads.card.campaign') }}:</span> <span x-text="lead.campaign"></span></div></template>
+                                                <div class="flex items-start justify-between gap-2">
+                                                    <div class="text-sm font-semibold text-(--text-primary) leading-5" x-text="lead.name"></div>
                                                 </div>
+
+                                                <div class="mt-3 flex flex-wrap items-center gap-2">
+                                                    <template x-if="lead.whatsapp">
+                                                        <x-ds::badge style="soft" variant="success" icon="solar:phone-linear">{{ __('app.leads.card.whatsapp') }}: <span class="ml-1" x-text="lead.whatsapp"></span></x-ds::badge>
+                                                    </template>
+
+                                                    <template x-if="lead.plan">
+                                                        <x-ds::badge style="soft" variant="secondary" icon="solar:bookmark-linear">{{ __('app.leads.card.plan') }}: <span class="ml-1" x-text="lead.plan"></span></x-ds::badge>
+                                                    </template>
+
+                                                    <template x-if="lead.value">
+                                                        <x-ds::badge style="soft" variant="secondary" icon="solar:tag-price-linear">{{ __('app.leads.card.value') }}: <span class="ml-1" x-text="lead.value"></span></x-ds::badge>
+                                                    </template>
+
+                                                    <template x-if="lead.responsible">
+                                                        <x-ds::badge style="soft" variant="secondary" icon="solar:user-linear">{{ __('app.leads.card.responsible') }}: <span class="ml-1" x-text="lead.responsible"></span></x-ds::badge>
+                                                    </template>
+
+                                                    <template x-if="lead.origin">
+                                                        <x-ds::badge style="soft" variant="info" icon="solar:map-point-linear">{{ __('app.leads.card.origin') }}: <span class="ml-1" x-text="lead.origin"></span></x-ds::badge>
+                                                    </template>
+
+                                                    <template x-if="lead.campaign">
+                                                        <x-ds::badge style="soft" variant="secondary" icon="solar:target-linear">{{ __('app.leads.card.campaign') }}: <span class="ml-1" x-text="lead.campaign"></span></x-ds::badge>
+                                                    </template>
+                                                </div>
+
+                                                <template x-if="lead.services">
+                                                    <div class="mt-3 text-xs text-(--text-secondary) line-clamp-2">
+                                                        <span class="font-medium">{{ __('app.leads.card.services') }}:</span>
+                                                        <span class="ml-1" x-text="lead.services"></span>
+                                                    </div>
+                                                </template>
                                             </div>
 
-                                            <div class="flex items-center gap-2">
+                                            <div class="flex items-center gap-2 shrink-0">
                                                 <x-ds::button
                                                     type="button"
                                                     size="icon"

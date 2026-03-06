@@ -13,6 +13,10 @@ class Index extends Component
 
     public ?string $plainToken = null;
 
+    public ?int $tokenToDeleteId = null;
+
+    public string $deleteConfirmation = '';
+
     public function rules(): array
     {
         return [
@@ -49,17 +53,36 @@ class Index extends Component
         $this->dispatch('notify', message: __('app.api_tokens.messages.created_success'), variant: 'success', title: __('app.api_tokens.messages.success_title'));
     }
 
-    public function delete(int $id): void
+    public function confirmDelete(int $id): void
     {
-        $token = ApiToken::find($id);
+        $this->tokenToDeleteId = $id;
+        $this->deleteConfirmation = '';
+        $this->resetErrorBag('deleteConfirmation');
+
+        $this->dispatch('open-delete-modal');
+    }
+
+    public function delete(): void
+    {
+        if ($this->deleteConfirmation !== 'DELETE') {
+            $this->addError('deleteConfirmation', __('app.api_tokens.delete.placeholder', ['word' => 'DELETE']));
+            return;
+        }
+
+        $token = $this->tokenToDeleteId ? ApiToken::find($this->tokenToDeleteId) : null;
         if (! $token) {
             $this->dispatch('notify', message: __('app.api_tokens.messages.error_not_found'), variant: 'danger', title: __('app.api_tokens.messages.error_title'));
+            $this->dispatch('close-delete-modal');
+            $this->reset(['tokenToDeleteId', 'deleteConfirmation']);
             return;
         }
 
         $token->delete();
 
         $this->dispatch('notify', message: __('app.api_tokens.messages.deleted_success'), variant: 'success', title: __('app.api_tokens.messages.success_title'));
+
+        $this->dispatch('close-delete-modal');
+        $this->reset(['tokenToDeleteId', 'deleteConfirmation']);
     }
 
     public function render()

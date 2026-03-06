@@ -20,7 +20,7 @@ class Index extends Component
 
     public string $search = '';
 
-    public int $perPage = 10;
+    public int $perPage = 12;
 
     public ?int $widgetId = null;
 

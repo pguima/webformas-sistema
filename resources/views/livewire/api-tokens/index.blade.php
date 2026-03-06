@@ -47,7 +47,7 @@
                                 variant="ghost"
                                 icon="solar:trash-bin-trash-linear"
                                 class="hover:text-(--status-error)"
-                                wire:click.prevent="delete({{ $token->id }})"
+                                wire:click.prevent="confirmDelete({{ $token->id }})"
                                 wire:loading.attr="disabled"
                             />
                         </div>
@@ -108,4 +108,42 @@
             </div>
         </form>
     </x-ds::offcanvas>
+
+    <x-ds::modal
+        x-on:open-delete-modal.window="openModal()"
+        x-on:close-delete-modal.window="closeModal()"
+        title="{{ __('app.api_tokens.delete.title') }}"
+        size="md"
+    >
+        <div class="space-y-4">
+            <x-ds::alert variant="danger" icon="solar:danger-triangle-linear">
+                {{ __('app.api_tokens.delete.warning') }}
+            </x-ds::alert>
+
+            <p class="text-sm text-(--text-secondary)">
+                {!! __('app.api_tokens.delete.confirm_help', ['word' => '<span class="select-all font-mono font-bold text-(--status-error)">DELETE</span>']) !!}
+            </p>
+
+            <x-ds::input
+                wire:model.live="deleteConfirmation"
+                placeholder="{{ __('app.api_tokens.delete.placeholder', ['word' => 'DELETE']) }}"
+                class="border-(--status-error) focus:border-(--status-error) focus:ring-(--status-error)/20"
+            />
+            @error('deleteConfirmation') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+        </div>
+
+        <x-slot:footer>
+            <div class="flex justify-end gap-2">
+                <x-ds::button type="button" variant="secondary" @click="open = false">{{ __('app.api_tokens.form.cancel') }}</x-ds::button>
+                <x-ds::button
+                    variant="danger"
+                    icon="solar:trash-bin-trash-linear"
+                    wire:click.prevent="delete"
+                    wire:loading.attr="disabled"
+                >
+                    {{ __('app.api_tokens.delete.delete_permanently') }}
+                </x-ds::button>
+            </div>
+        </x-slot:footer>
+    </x-ds::modal>
 </div>

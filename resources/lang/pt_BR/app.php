@@ -122,6 +122,14 @@ return [
             'description' => 'Por segurança, este token será exibido apenas uma vez.',
         ],
 
+        'delete' => [
+            'title' => 'Revogar token',
+            'warning' => 'Atenção: esta ação não pode ser desfeita.',
+            'confirm_help' => 'Para confirmar a revogação, digite :word abaixo:',
+            'placeholder' => 'Digite :word',
+            'delete_permanently' => 'Revogar token',
+        ],
+
         'messages' => [
             'success_title' => 'Sucesso',
             'error_title' => 'Erro',
