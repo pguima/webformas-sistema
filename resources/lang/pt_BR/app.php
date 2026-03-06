@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'common' => [
+        'dash' => '—',
+    ],
+
     'sidebar' => [
         'dashboard' => 'Painel',
         'users' => 'Usuários',
@@ -16,6 +20,54 @@ return [
         'folders' => 'Pastas',
         'files' => 'Arquivos',
         'management' => 'Gestão',
+    ],
+
+    'clients' => [
+        'title' => 'Clientes',
+        'subtitle' => 'Gerencie clientes e seus dados básicos.',
+        'add' => '+ Cliente',
+        'search_placeholder' => 'Buscar clientes...',
+        'per_page' => 'Por página',
+        'no_results' => 'Nenhum cliente encontrado para ":search".',
+
+        'table' => [
+            'name' => 'Nome',
+            'cnpj' => 'CNPJ',
+            'category' => 'Categoria',
+            'actions' => 'Ações',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Novo cliente',
+            'create_description' => 'Cadastre um novo cliente.',
+            'edit_title' => 'Editar cliente',
+            'edit_description' => 'Atualize os dados do cliente.',
+        ],
+
+        'form' => [
+            'name' => 'Nome',
+            'cnpj' => 'CNPJ',
+            'category' => 'Categoria',
+            'cancel' => 'Cancelar',
+            'save' => 'Salvar',
+        ],
+
+        'delete' => [
+            'title' => 'Excluir cliente',
+            'warning' => 'Atenção: esta ação não pode ser desfeita.',
+            'confirm_help' => 'Para confirmar a exclusão, digite :word abaixo:',
+            'placeholder' => 'Digite :word',
+            'delete_permanently' => 'Excluir definitivamente',
+        ],
+
+        'messages' => [
+            'success_title' => 'Sucesso',
+            'error_title' => 'Erro',
+            'created_success' => 'Cliente criado com sucesso!',
+            'updated_success' => 'Cliente atualizado com sucesso!',
+            'deleted_success' => 'Cliente excluído com sucesso!',
+            'error_not_found' => 'Cliente não encontrado.',
+        ],
     ],
 
     'leads' => [

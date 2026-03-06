@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'common' => [
+        'dash' => '—',
+    ],
+
     'sidebar' => [
         'dashboard' => 'Panel',
         'clients' => 'Clientes',
@@ -16,6 +20,54 @@ return [
         'settings' => 'Configuración',
         'system' => 'Sistema',
         'design_system' => 'Sistema de Diseño',
+    ],
+
+    'clients' => [
+        'title' => 'Clientes',
+        'subtitle' => 'Administra clientes y sus datos básicos.',
+        'add' => '+ Cliente',
+        'search_placeholder' => 'Buscar clientes...',
+        'per_page' => 'Por página',
+        'no_results' => 'No se encontraron clientes para ":search".',
+
+        'table' => [
+            'name' => 'Nombre',
+            'cnpj' => 'CNPJ',
+            'category' => 'Categoría',
+            'actions' => 'Acciones',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Nuevo cliente',
+            'create_description' => 'Crea un nuevo cliente.',
+            'edit_title' => 'Editar cliente',
+            'edit_description' => 'Actualiza los datos del cliente.',
+        ],
+
+        'form' => [
+            'name' => 'Nombre',
+            'cnpj' => 'CNPJ',
+            'category' => 'Categoría',
+            'cancel' => 'Cancelar',
+            'save' => 'Guardar',
+        ],
+
+        'delete' => [
+            'title' => 'Eliminar cliente',
+            'warning' => 'Advertencia: esta acción no se puede deshacer.',
+            'confirm_help' => 'Para confirmar la eliminación, escribe :word abajo:',
+            'placeholder' => 'Escribe :word',
+            'delete_permanently' => 'Eliminar definitivamente',
+        ],
+
+        'messages' => [
+            'success_title' => 'Éxito',
+            'error_title' => 'Error',
+            'created_success' => '¡Cliente creado con éxito!',
+            'updated_success' => '¡Cliente actualizado con éxito!',
+            'deleted_success' => '¡Cliente eliminado con éxito!',
+            'error_not_found' => 'Cliente no encontrado.',
+        ],
     ],
 
     'dashboard' => [

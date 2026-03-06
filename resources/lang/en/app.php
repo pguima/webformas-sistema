@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'common' => [
+        'dash' => '—',
+    ],
+
     'sidebar' => [
         'dashboard' => 'Dashboard',
         'clients' => 'Clients',
@@ -16,6 +20,54 @@ return [
         'settings' => 'Settings',
         'system' => 'System',
         'design_system' => 'Design System',
+    ],
+
+    'clients' => [
+        'title' => 'Clients',
+        'subtitle' => 'Manage clients and their basic data.',
+        'add' => '+ Client',
+        'search_placeholder' => 'Search clients...',
+        'per_page' => 'Per page',
+        'no_results' => 'No clients found matching ":search".',
+
+        'table' => [
+            'name' => 'Name',
+            'cnpj' => 'CNPJ',
+            'category' => 'Category',
+            'actions' => 'Actions',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'New client',
+            'create_description' => 'Create a new client.',
+            'edit_title' => 'Edit client',
+            'edit_description' => 'Update client details.',
+        ],
+
+        'form' => [
+            'name' => 'Name',
+            'cnpj' => 'CNPJ',
+            'category' => 'Category',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+        ],
+
+        'delete' => [
+            'title' => 'Delete client',
+            'warning' => 'Warning: This action cannot be undone.',
+            'confirm_help' => 'To confirm deletion, please type :word below:',
+            'placeholder' => 'Type :word',
+            'delete_permanently' => 'Delete permanently',
+        ],
+
+        'messages' => [
+            'success_title' => 'Success',
+            'error_title' => 'Error',
+            'created_success' => 'Client created successfully!',
+            'updated_success' => 'Client updated successfully!',
+            'deleted_success' => 'Client deleted successfully!',
+            'error_not_found' => 'Client not found.',
+        ],
     ],
 
     'dashboard' => [
