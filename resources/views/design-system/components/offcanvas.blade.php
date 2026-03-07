@@ -104,6 +104,8 @@
         id="{{ $offcanvasId }}"
         x-cloak
         x-show="open"
+        x-on:click.stop
+        x-on:mousedown.stop
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="{{ $translateHiddenClass }} opacity-0"
         x-transition:enter-end="{{ $translateVisibleClass }} opacity-100"

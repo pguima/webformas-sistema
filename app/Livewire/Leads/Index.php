@@ -2,7 +2,10 @@
 
 namespace App\Livewire\Leads;
 
+use App\Models\Client;
 use App\Models\Lead;
+use App\Models\Plan;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -27,11 +30,20 @@ class Index extends Component
 
     public ?string $whatsapp = null;
 
-    public ?string $plan = null;
+    public ?string $cnpj = null;
 
-    public ?string $services = null;
+    public ?int $plan_id = null;
 
-    public $value = null;
+    /** @var array<int, string> */
+    public array $service_ids = [];
+
+    public $value_base = null;
+
+    public ?string $discount_type = null;
+
+    public $discount_value = null;
+
+    public $value_final = null;
 
     public ?int $responsible_user_id = null;
 
@@ -46,9 +58,14 @@ class Index extends Component
         return [
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
-            'plan' => ['nullable', 'string', 'max:255'],
-            'services' => ['nullable', 'string'],
-            'value' => ['nullable', 'numeric', 'min:0'],
+            'cnpj' => ['nullable', 'string', 'max:18'],
+            'plan_id' => ['nullable', 'integer', 'exists:plans,id'],
+            'service_ids' => ['array'],
+            'service_ids.*' => ['integer', 'exists:services,id'],
+            'value_base' => ['nullable', 'numeric', 'min:0'],
+            'discount_type' => ['nullable', Rule::in(['value', 'percent'])],
+            'discount_value' => ['nullable', 'numeric', 'min:0'],
+            'value_final' => ['nullable', 'numeric', 'min:0'],
             'responsible_user_id' => ['nullable', 'integer', 'exists:users,id'],
             'origin' => ['nullable', 'string', 'max:255'],
             'campaign' => ['nullable', 'string', 'max:255'],
@@ -56,10 +73,101 @@ class Index extends Component
         ];
     }
 
+    public function updatedPlanId(): void
+    {
+        $this->syncServicesFromPlan();
+        $this->recalculatePricing();
+    }
+
+    public function updatedServiceIds(): void
+    {
+        if ($this->plan_id) {
+            $this->syncServicesFromPlan();
+        }
+
+        $this->recalculatePricing();
+    }
+
+    public function updatedDiscountType(): void
+    {
+        $this->recalculatePricing();
+    }
+
+    public function updatedDiscountValue(): void
+    {
+        $this->recalculatePricing();
+    }
+
+    private function syncServicesFromPlan(): void
+    {
+        if (!$this->plan_id) {
+            return;
+        }
+
+        $plan = Plan::query()->with('services:id')->find($this->plan_id);
+        if (!$plan) {
+            return;
+        }
+
+        $this->service_ids = $plan->services
+            ->pluck('id')
+            ->map(fn ($v) => (string) $v)
+            ->values()
+            ->all();
+    }
+
+    private function recalculatePricing(): void
+    {
+        $base = 0.0;
+
+        if ($this->plan_id) {
+            $planPrice = (float) (Plan::query()->whereKey($this->plan_id)->value('price') ?? 0);
+            $base = $planPrice;
+        } else {
+            $ids = array_values(array_filter(array_map('intval', $this->service_ids)));
+            if (!empty($ids)) {
+                $base = (float) (Service::query()->whereIn('id', $ids)->sum('price') ?? 0);
+            }
+        }
+
+        $this->value_base = round($base, 2);
+
+        $discountType = $this->discount_type;
+        $discountValue = is_numeric($this->discount_value) ? (float) $this->discount_value : 0.0;
+
+        $discountAmount = 0.0;
+        if ($discountType === 'percent') {
+            $discountAmount = $base * ($discountValue / 100.0);
+        } elseif ($discountType === 'value') {
+            $discountAmount = $discountValue;
+        }
+
+        $final = max(0.0, $base - $discountAmount);
+        $this->value_final = round($final, 2);
+    }
+
     public function create(): void
     {
-        $this->reset(['leadId', 'name', 'whatsapp', 'plan', 'services', 'value', 'responsible_user_id', 'origin', 'campaign']);
+        $this->reset([
+            'leadId',
+            'name',
+            'whatsapp',
+            'cnpj',
+            'plan_id',
+            'service_ids',
+            'value_base',
+            'discount_type',
+            'discount_value',
+            'value_final',
+            'responsible_user_id',
+            'origin',
+            'campaign',
+        ]);
         $this->stage = 'Novo';
+        $this->service_ids = [];
+        $this->discount_type = 'value';
+        $this->discount_value = 0;
+        $this->recalculatePricing();
     }
 
     public function edit(int $id): void
@@ -69,28 +177,56 @@ class Index extends Component
         $this->leadId = $lead->id;
         $this->name = $lead->name;
         $this->whatsapp = $lead->whatsapp;
-        $this->plan = $lead->plan;
-        $this->services = $lead->services;
-        $this->value = $lead->value;
+        $this->cnpj = $lead->cnpj;
+        $this->plan_id = $lead->plan_id;
+        $this->service_ids = array_map('strval', $lead->service_ids ?? []);
+        $this->value_base = $lead->value_base;
+        $this->discount_type = $lead->discount_type;
+        $this->discount_value = $lead->discount_value;
+        $this->value_final = $lead->value_final;
         $this->responsible_user_id = $lead->responsible_user_id;
         $this->origin = $lead->origin;
         $this->campaign = $lead->campaign;
         $this->stage = $lead->stage;
+
+        if ($this->plan_id) {
+            $this->syncServicesFromPlan();
+        }
+
+        $this->recalculatePricing();
     }
 
     public function save(): void
     {
+        $this->recalculatePricing();
         $data = $this->validate();
+
+        $planName = null;
+        if (!empty($data['plan_id'])) {
+            $planName = Plan::query()->whereKey($data['plan_id'])->value('name');
+        }
+
+        $serviceNames = [];
+        $ids = array_values(array_filter(array_map('intval', $data['service_ids'] ?? [])));
+        if (!empty($ids)) {
+            $serviceNames = Service::query()->whereIn('id', $ids)->orderBy('name')->pluck('name')->all();
+        }
+
+        $dataToPersist = array_merge($data, [
+            'plan' => $planName,
+            'services' => !empty($serviceNames) ? implode(', ', $serviceNames) : null,
+            'value' => $data['value_final'] ?? null,
+        ]);
 
         if ($this->leadId) {
             $lead = Lead::findOrFail($this->leadId);
-            $lead->update($data);
+            $lead->update($dataToPersist);
 
             $this->dispatch('notify', message: __('app.leads.messages.updated_success'), variant: 'success', title: __('app.leads.messages.success_title'));
         } else {
             $position = (int) (Lead::query()->where('stage', $data['stage'])->max('position') ?? 0);
 
-            $lead = Lead::create(array_merge($data, [
+            $lead = Lead::create(array_merge($dataToPersist, [
                 'position' => $position + 1,
             ]));
 
@@ -98,8 +234,23 @@ class Index extends Component
         }
 
         $this->dispatch('close-lead-offcanvas');
-        $this->reset(['leadId', 'name', 'whatsapp', 'plan', 'services', 'value', 'responsible_user_id', 'origin', 'campaign']);
+        $this->reset([
+            'leadId',
+            'name',
+            'whatsapp',
+            'cnpj',
+            'plan_id',
+            'service_ids',
+            'value_base',
+            'discount_type',
+            'discount_value',
+            'value_final',
+            'responsible_user_id',
+            'origin',
+            'campaign',
+        ]);
         $this->stage = 'Novo';
+        $this->service_ids = [];
     }
 
     public function delete(int $id): void
@@ -131,6 +282,23 @@ class Index extends Component
                 'stage' => $toStage,
                 'position' => max(0, $toIndex),
             ]);
+
+            if ($toStage === 'Ganho') {
+                $name = (string) $lead->name;
+                $cnpj = $lead->cnpj ? (string) $lead->cnpj : null;
+
+                if ($cnpj) {
+                    Client::query()->updateOrCreate(
+                        ['cnpj' => $cnpj],
+                        ['name' => $name]
+                    );
+                } else {
+                    Client::query()->create([
+                        'name' => $name,
+                        'cnpj' => null,
+                    ]);
+                }
+            }
         });
     }
 
@@ -143,6 +311,16 @@ class Index extends Component
             ->get();
 
         $users = User::query()->orderBy('name')->get(['id', 'name']);
+
+        $plans = Plan::query()->orderBy('name')->get(['id', 'name', 'price']);
+        $services = Service::query()->orderBy('name')->get(['id', 'name', 'price']);
+
+        $planOptions = $plans->map(fn ($p) => ['value' => $p->id, 'label' => $p->name])->prepend([
+            'value' => '',
+            'label' => __('app.leads.form.plan_custom'),
+        ])->all();
+
+        $serviceOptions = $services->map(fn ($s) => ['value' => (string) $s->id, 'label' => $s->name])->values()->all();
 
         $columns = collect(self::STAGES)
             ->map(function ($stage) use ($leads) {
@@ -157,6 +335,7 @@ class Index extends Component
                             'name' => (string) $lead->name,
                             'stage' => (string) $lead->stage,
                             'whatsapp' => $lead->whatsapp,
+                            'cnpj' => $lead->cnpj,
                             'plan' => $lead->plan,
                             'services' => $lead->services,
                             'value' => $lead->value,
@@ -174,6 +353,8 @@ class Index extends Component
         return view('livewire.leads.index', [
             'columns' => $columns,
             'users' => $users,
+            'planOptions' => $planOptions,
+            'serviceOptions' => $serviceOptions,
         ])->layout('layouts.app');
     }
 }

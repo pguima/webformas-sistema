@@ -8,6 +8,8 @@ return [
     'sidebar' => [
         'dashboard' => 'Panel',
         'clients' => 'Clientes',
+        'services' => 'Servicios',
+        'plans' => 'Planes',
         'employees' => 'Empleados',
         'folders' => 'Carpetas',
         'files' => 'Archivos',
@@ -29,6 +31,35 @@ return [
         'search_placeholder' => 'Buscar clientes...',
         'per_page' => 'Por página',
         'no_results' => 'No se encontraron clientes para ":search".',
+
+        'profile' => [
+            'title' => 'Perfil del cliente',
+            'subtitle' => 'Detalles de :name',
+            'back' => 'Volver',
+
+            'fields' => [
+                'name' => 'Nombre',
+                'cnpj' => 'CNPJ',
+                'category' => 'Categoría',
+            ],
+
+            'cards' => [
+                'about' => [
+                    'title' => 'Información',
+                    'description' => 'Datos de registro del cliente.',
+                ],
+                'contracted_services' => [
+                    'title' => 'Servicios contratados',
+                    'description' => 'Aquí gestionaremos los servicios y planes contratados.',
+                    'empty' => 'Aún no hay servicios contratados vinculados.',
+                ],
+                'timeline' => [
+                    'title' => 'Línea de tiempo',
+                    'description' => 'Eventos y movimientos relacionados con este cliente.',
+                    'empty' => 'Aún no hay eventos registrados.',
+                ],
+            ],
+        ],
 
         'table' => [
             'name' => 'Nombre',
@@ -67,6 +98,106 @@ return [
             'updated_success' => '¡Cliente actualizado con éxito!',
             'deleted_success' => '¡Cliente eliminado con éxito!',
             'error_not_found' => 'Cliente no encontrado.',
+        ],
+    ],
+
+    'services' => [
+        'title' => 'Servicios',
+        'subtitle' => 'Administra servicios y sus precios.',
+        'add' => '+ Servicio',
+        'search_placeholder' => 'Buscar servicios...',
+        'per_page' => 'Por página',
+        'no_results' => 'No se encontraron servicios para ":search".',
+
+        'table' => [
+            'name' => 'Nombre',
+            'price' => 'Precio',
+            'actions' => 'Acciones',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Nuevo servicio',
+            'create_description' => 'Crea un nuevo servicio.',
+            'edit_title' => 'Editar servicio',
+            'edit_description' => 'Actualiza los datos del servicio.',
+        ],
+
+        'form' => [
+            'name' => 'Nombre',
+            'price' => 'Precio',
+            'cancel' => 'Cancelar',
+            'save' => 'Guardar',
+        ],
+
+        'delete' => [
+            'title' => 'Eliminar servicio',
+            'warning' => 'Advertencia: esta acción no se puede deshacer.',
+            'confirm_help' => 'Para confirmar la eliminación, escribe :word abajo:',
+            'placeholder' => 'Escribe :word',
+            'delete_permanently' => 'Eliminar definitivamente',
+        ],
+
+        'messages' => [
+            'success_title' => 'Éxito',
+            'error_title' => 'Error',
+            'created_success' => '¡Servicio creado con éxito!',
+            'updated_success' => '¡Servicio actualizado con éxito!',
+            'deleted_success' => '¡Servicio eliminado con éxito!',
+            'error_not_found' => 'Servicio no encontrado.',
+        ],
+    ],
+
+    'plans' => [
+        'title' => 'Planes',
+        'subtitle' => 'Administra planes, precios y servicios vinculados.',
+        'add' => '+ Plan',
+        'search_placeholder' => 'Buscar planes...',
+        'per_page' => 'Por página',
+        'no_results' => 'No se encontraron planes para ":search".',
+
+        'table' => [
+            'name' => 'Nombre',
+            'price' => 'Precio',
+            'services' => 'Servicios',
+            'actions' => 'Acciones',
+        ],
+
+        'card' => [
+            'services_count' => ':count servicios',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Nuevo plan',
+            'create_description' => 'Crea un nuevo plan.',
+            'edit_title' => 'Editar plan',
+            'edit_description' => 'Actualiza los datos del plan.',
+        ],
+
+        'form' => [
+            'name' => 'Nombre',
+            'price' => 'Precio del plan',
+            'services' => 'Servicios vinculados',
+            'services_placeholder' => 'Selecciona servicios...',
+            'services_helper' => 'Puedes seleccionar varios servicios.',
+            'cancel' => 'Cancelar',
+            'save' => 'Guardar',
+        ],
+
+        'delete' => [
+            'title' => 'Eliminar plan',
+            'warning' => 'Advertencia: esta acción no se puede deshacer.',
+            'confirm_help' => 'Para confirmar la eliminación, escribe :word abajo:',
+            'placeholder' => 'Escribe :word',
+            'delete_permanently' => 'Eliminar definitivamente',
+        ],
+
+        'messages' => [
+            'success_title' => 'Éxito',
+            'error_title' => 'Error',
+            'created_success' => '¡Plan creado con éxito!',
+            'updated_success' => '¡Plan actualizado con éxito!',
+            'deleted_success' => '¡Plan eliminado con éxito!',
+            'error_not_found' => 'Plan no encontrado.',
         ],
     ],
 
@@ -261,8 +392,16 @@ return [
             'name' => 'Nombre',
             'whatsapp' => 'Whatsapp',
             'plan' => 'Plan',
+            'plan_custom' => 'Personalizado',
             'services' => 'Servicios',
-            'value' => 'Valor',
+            'services_placeholder' => 'Selecciona servicios...',
+            'services_helper' => 'Puedes seleccionar varios servicios.',
+            'value_base' => 'Valor base',
+            'discount_type' => 'Tipo de descuento',
+            'discount_type_value' => 'Valor',
+            'discount_type_percent' => 'Porcentaje',
+            'discount_value' => 'Valor del descuento',
+            'value_final' => 'Valor final',
             'responsible' => 'Usuario responsable',
             'responsible_empty' => 'Sin responsable',
             'origin' => 'Origen',

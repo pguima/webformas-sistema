@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Plan;
 
 class Lead extends Model
 {
@@ -12,9 +13,16 @@ class Lead extends Model
     protected $fillable = [
         'name',
         'whatsapp',
+        'cnpj',
+        'plan_id',
         'plan',
         'services',
+        'service_ids',
         'value',
+        'value_base',
+        'discount_type',
+        'discount_value',
+        'value_final',
         'responsible_user_id',
         'origin',
         'campaign',
@@ -28,8 +36,17 @@ class Lead extends Model
     {
         return [
             'value' => 'decimal:2',
+            'value_base' => 'decimal:2',
+            'discount_value' => 'decimal:2',
+            'value_final' => 'decimal:2',
+            'service_ids' => 'array',
             'payload' => 'array',
         ];
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
     }
 
     public function responsibleUser()

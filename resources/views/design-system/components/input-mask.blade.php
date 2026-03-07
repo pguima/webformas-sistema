@@ -108,11 +108,11 @@
             type="{{ $type }}"
             id="{{ $id }}"
             name="{{ $name }}"
-            @input="handleInput"
+            x-on:input.capture="handleInput($event)"
             @if($placeholder) placeholder="{{ $placeholder }}" @endif
             @if($disabled) disabled @endif
             @if($required) required @endif
-            class="w-full appearance-none rounded-lg border border-(--border-default) bg-(--surface-card) px-3 py-2 text-sm text-(--text-primary) transition-all duration-200 placeholder:text-(--text-muted) focus:border-(--color-primary) focus:outline-none focus:ring-2 focus:ring-(--color-primary)/20 disabled:cursor-not-allowed disabled:bg-(--surface-hover) disabled:text-(--text-muted) {{ $icon ? 'pl-10' : '' }} {{ $error ? 'border-(--status-error)' : '' }}"
+            {{ $attributes->merge(['class' => 'w-full appearance-none rounded-lg border border-(--border-default) bg-(--surface-card) px-3 py-2 text-sm text-(--text-primary) transition-all duration-200 placeholder:text-(--text-muted) focus:border-(--color-primary) focus:outline-none focus:ring-2 focus:ring-(--color-primary)/20 disabled:cursor-not-allowed disabled:bg-(--surface-hover) disabled:text-(--text-muted) ' . ($icon ? 'pl-10 ' : '') . ($error ? 'border-(--status-error)' : '')]) }}
         />
     </div>
 

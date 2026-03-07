@@ -8,6 +8,8 @@ return [
     'sidebar' => [
         'dashboard' => 'Dashboard',
         'clients' => 'Clients',
+        'services' => 'Services',
+        'plans' => 'Plans',
         'employees' => 'Employees',
         'folders' => 'Folders',
         'files' => 'Files',
@@ -29,6 +31,35 @@ return [
         'search_placeholder' => 'Search clients...',
         'per_page' => 'Per page',
         'no_results' => 'No clients found matching ":search".',
+
+        'profile' => [
+            'title' => 'Client profile',
+            'subtitle' => 'Details for :name',
+            'back' => 'Back',
+
+            'fields' => [
+                'name' => 'Name',
+                'cnpj' => 'CNPJ',
+                'category' => 'Category',
+            ],
+
+            'cards' => [
+                'about' => [
+                    'title' => 'About',
+                    'description' => 'Client registration details.',
+                ],
+                'contracted_services' => [
+                    'title' => 'Contracted services',
+                    'description' => 'This area will manage contracted services and plans.',
+                    'empty' => 'No contracted services linked yet.',
+                ],
+                'timeline' => [
+                    'title' => 'Timeline',
+                    'description' => 'Events and movements related to this client.',
+                    'empty' => 'No events recorded yet.',
+                ],
+            ],
+        ],
 
         'table' => [
             'name' => 'Name',
@@ -67,6 +98,106 @@ return [
             'updated_success' => 'Client updated successfully!',
             'deleted_success' => 'Client deleted successfully!',
             'error_not_found' => 'Client not found.',
+        ],
+    ],
+
+    'services' => [
+        'title' => 'Services',
+        'subtitle' => 'Manage services and their prices.',
+        'add' => '+ Service',
+        'search_placeholder' => 'Search services...',
+        'per_page' => 'Per page',
+        'no_results' => 'No services found matching ":search".',
+
+        'table' => [
+            'name' => 'Name',
+            'price' => 'Price',
+            'actions' => 'Actions',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'New service',
+            'create_description' => 'Create a new service.',
+            'edit_title' => 'Edit service',
+            'edit_description' => 'Update service details.',
+        ],
+
+        'form' => [
+            'name' => 'Name',
+            'price' => 'Price',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+        ],
+
+        'delete' => [
+            'title' => 'Delete service',
+            'warning' => 'Warning: This action cannot be undone.',
+            'confirm_help' => 'To confirm deletion, please type :word below:',
+            'placeholder' => 'Type :word',
+            'delete_permanently' => 'Delete permanently',
+        ],
+
+        'messages' => [
+            'success_title' => 'Success',
+            'error_title' => 'Error',
+            'created_success' => 'Service created successfully!',
+            'updated_success' => 'Service updated successfully!',
+            'deleted_success' => 'Service deleted successfully!',
+            'error_not_found' => 'Service not found.',
+        ],
+    ],
+
+    'plans' => [
+        'title' => 'Plans',
+        'subtitle' => 'Manage plans, prices and linked services.',
+        'add' => '+ Plan',
+        'search_placeholder' => 'Search plans...',
+        'per_page' => 'Per page',
+        'no_results' => 'No plans found matching ":search".',
+
+        'table' => [
+            'name' => 'Name',
+            'price' => 'Price',
+            'services' => 'Services',
+            'actions' => 'Actions',
+        ],
+
+        'card' => [
+            'services_count' => ':count services',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'New plan',
+            'create_description' => 'Create a new plan.',
+            'edit_title' => 'Edit plan',
+            'edit_description' => 'Update plan details.',
+        ],
+
+        'form' => [
+            'name' => 'Name',
+            'price' => 'Plan price',
+            'services' => 'Linked services',
+            'services_placeholder' => 'Select services...',
+            'services_helper' => 'You can select multiple services.',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+        ],
+
+        'delete' => [
+            'title' => 'Delete plan',
+            'warning' => 'Warning: This action cannot be undone.',
+            'confirm_help' => 'To confirm deletion, please type :word below:',
+            'placeholder' => 'Type :word',
+            'delete_permanently' => 'Delete permanently',
+        ],
+
+        'messages' => [
+            'success_title' => 'Success',
+            'error_title' => 'Error',
+            'created_success' => 'Plan created successfully!',
+            'updated_success' => 'Plan updated successfully!',
+            'deleted_success' => 'Plan deleted successfully!',
+            'error_not_found' => 'Plan not found.',
         ],
     ],
 
@@ -260,8 +391,16 @@ return [
             'name' => 'Name',
             'whatsapp' => 'Whatsapp',
             'plan' => 'Plan',
+            'plan_custom' => 'Custom',
             'services' => 'Services',
-            'value' => 'Value',
+            'services_placeholder' => 'Select services...',
+            'services_helper' => 'You can select multiple services.',
+            'value_base' => 'Base value',
+            'discount_type' => 'Discount type',
+            'discount_type_value' => 'Value',
+            'discount_type_percent' => 'Percent',
+            'discount_value' => 'Discount value',
+            'value_final' => 'Final value',
             'responsible' => 'Responsible user',
             'responsible_empty' => 'No responsible',
             'origin' => 'Origin',

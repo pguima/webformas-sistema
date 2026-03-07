@@ -10,6 +10,8 @@
     'helper' => null,
     'disabled' => false,
     'required' => false,
+    'wireModel' => null,
+    'wireLive' => false,
 ])
 
 @php
@@ -24,39 +26,53 @@
             $normalizedOptions[] = ['value' => $key, 'label' => $option];
         }
     }
-    
-    // Converter para JSON para uso no Alpine
-    $optionsJson = json_encode($normalizedOptions);
+
+    $selectedExpression = $wireModel
+        ? ("\$wire.entangle(\"" . addslashes($wireModel) . "\")" . (($wireLive && $multiple) ? '.live' : ''))
+        : ($multiple ? '[]' : 'null');
+
+    $optionsJs = json_encode($normalizedOptions, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 @endphp
 
 <div
     class="flex flex-col gap-1.5 w-full"
-    x-data="{
-        options: {{ $optionsJson }},
-        selected: @if($multiple) [] @else null @endif,
-        search: '',
-        open: false,
+    @if ($wireModel) wire:ignore.self @endif
+    data-placeholder="{{ $placeholder }}"
+    data-search-placeholder="{{ $searchPlaceholder }}"
+    x-data='{
+        options: {!! $optionsJs !!},
+        selected: {!! $selectedExpression !!},
+        multiple: {{ $multiple ? 'true' : 'false' }},
+        placeholder: "",
+        searchPlaceholder: "",
+        search: "",
+        isOpen: false,
+
+        init() {
+            this.placeholder = this.$el.dataset.placeholder || "";
+            this.searchPlaceholder = this.$el.dataset.searchPlaceholder || "";
+        },
         
         get filteredOptions() {
-            if (this.search === '') return this.options;
+            if (this.search === "") return this.options;
             return this.options.filter(opt =>
                 opt.label.toLowerCase().includes(this.search.toLowerCase())
             );
         },
         
         get displayValue() {
-            if ({{ $multiple ? 'true' : 'false' }}) {
-                if (this.selected.length === 0) return '{{ $placeholder }}';
-                return this.selected.length + ' selected';
+            if (this.multiple) {
+                if (this.selected.length === 0) return this.placeholder;
+                return this.selected.length + " selected";
             } else {
-                if (!this.selected) return '{{ $placeholder }}';
+                if (!this.selected) return this.placeholder;
                 const opt = this.options.find(o => o.value == this.selected);
-                return opt ? opt.label : '{{ $placeholder }}';
+                return opt ? opt.label : this.placeholder;
             }
         },
         
         select(value) {
-            if ({{ $multiple ? 'true' : 'false' }}) {
+            if (this.multiple) {
                 if (this.selected.includes(value)) {
                     this.selected = this.selected.filter(v => v !== value);
                 } else {
@@ -64,7 +80,7 @@
                 }
             } else {
                 this.selected = value;
-                this.open = false;
+                this.isOpen = false;
             }
         },
         
@@ -73,13 +89,13 @@
         },
         
         isSelected(value) {
-            if ({{ $multiple ? 'true' : 'false' }}) {
+            if (this.multiple) {
                 return this.selected.includes(value);
             }
             return this.selected == value;
         }
-    }"
-    @click.outside="open = false"
+    }'
+    @click.outside="isOpen = false"
 >
     {{-- Label --}}
     @if ($label)
@@ -93,8 +109,8 @@
     <div class="relative">
         <button
             type="button"
-            @click="if(!{{ $disabled ? 'true' : 'false' }}) { open = !open; $nextTick(() => $refs.searchInput?.focus()); }"
-            class="flex min-h-[40px] w-full items-center justify-between rounded-lg border bg-(--surface-card) px-3 py-2 text-sm text-(--text-primary) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-primary)/20 {{ $disabled ? 'cursor-not-allowed bg-(--surface-hover) text-(--text-muted)' : 'hover:border-(--border-hover)' }} {{ $error ? 'border-(--status-error)' : 'border-(--border-default)' }}"
+            @click="if(!{{ $disabled ? 'true' : 'false' }}) { isOpen = !isOpen; $nextTick(() => $refs.searchInput?.focus()); }"
+            class="flex min-h-10 w-full items-center justify-between rounded-lg border bg-(--surface-card) px-3 py-2 text-sm text-(--text-primary) transition-all focus:outline-none focus:ring-2 focus:ring-(--color-primary)/20 {{ $disabled ? 'cursor-not-allowed bg-(--surface-hover) text-(--text-muted)' : 'hover:border-(--border-hover)' }} {{ $error ? 'border-(--status-error)' : 'border-(--border-default)' }}"
         >
             <div class="flex flex-wrap gap-1">
                 @if ($multiple)
@@ -114,12 +130,12 @@
                 @endif
             </div>
             
-            <iconify-icon icon="solar:alt-arrow-down-linear" class="text-(--text-secondary) transition-transform" :class="open ? 'rotate-180' : ''"></iconify-icon>
+            <iconify-icon icon="solar:alt-arrow-down-linear" class="text-(--text-secondary) transition-transform" :class="isOpen ? 'rotate-180' : ''"></iconify-icon>
         </button>
 
         {{-- Dropdown --}}
         <div
-            x-show="open"
+            x-show="isOpen"
             x-transition:enter="transition ease-out duration-100"
             x-transition:enter-start="transform opacity-0 scale-95"
             x-transition:enter-end="transform opacity-100 scale-100"
@@ -137,7 +153,7 @@
                         x-ref="searchInput"
                         x-model="search"
                         type="text"
-                        placeholder="{{ $searchPlaceholder }}"
+                        x-bind:placeholder="searchPlaceholder"
                         class="w-full rounded bg-(--surface-page) py-1.5 pl-8 pr-3 text-sm text-(--text-primary) placeholder-(--text-muted) focus:outline-none"
                     >
                 </div>

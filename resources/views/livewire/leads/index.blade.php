@@ -206,10 +206,6 @@
                                                         <x-ds::badge style="soft" variant="success" icon="solar:phone-linear">{{ __('app.leads.card.whatsapp') }}: <span class="ml-1" x-text="lead.whatsapp"></span></x-ds::badge>
                                                     </template>
 
-                                                    <template x-if="lead.plan">
-                                                        <x-ds::badge style="soft" variant="secondary" icon="solar:bookmark-linear">{{ __('app.leads.card.plan') }}: <span class="ml-1" x-text="lead.plan"></span></x-ds::badge>
-                                                    </template>
-
                                                     <template x-if="lead.value">
                                                         <x-ds::badge style="soft" variant="secondary" icon="solar:tag-price-linear">{{ __('app.leads.card.value') }}: <span class="ml-1" x-text="lead.value"></span></x-ds::badge>
                                                     </template>
@@ -224,6 +220,10 @@
 
                                                     <template x-if="lead.campaign">
                                                         <x-ds::badge style="soft" variant="secondary" icon="solar:target-linear">{{ __('app.leads.card.campaign') }}: <span class="ml-1" x-text="lead.campaign"></span></x-ds::badge>
+                                                    </template>
+
+                                                    <template x-if="lead.plan">
+                                                        <x-ds::badge style="soft" variant="secondary" icon="solar:bookmark-linear">{{ __('app.leads.card.plan') }}: <span class="ml-1" x-text="lead.plan"></span></x-ds::badge>
                                                     </template>
                                                 </div>
 
@@ -332,10 +332,66 @@
             @endif
 
             <x-ds::input label="{{ __('app.leads.form.name') }}" wire:model="name" required :error="$errors->first('name')" />
-            <x-ds::input label="{{ __('app.leads.form.whatsapp') }}" wire:model="whatsapp" :error="$errors->first('whatsapp')" />
-            <x-ds::input label="{{ __('app.leads.form.plan') }}" wire:model="plan" :error="$errors->first('plan')" />
-            <x-ds::textarea label="{{ __('app.leads.form.services') }}" wire:model="services" rows="3" :error="$errors->first('services')" />
-            <x-ds::input label="{{ __('app.leads.form.value') }}" wire:model="value" type="number" step="0.01" :error="$errors->first('value')" />
+            <x-ds::input-mask label="{{ __('app.leads.form.whatsapp') }}" wire:model="whatsapp" mask="phone" :error="$errors->first('whatsapp')" />
+            <x-ds::input-mask label="CNPJ" wire:model="cnpj" mask="cnpj" :error="$errors->first('cnpj')" />
+            <x-ds::select
+                label="{{ __('app.leads.form.plan') }}"
+                wire:model.live="plan_id"
+                :options="$planOptions"
+                :error="$errors->first('plan_id')"
+            />
+
+            <x-ds::select-search
+                label="{{ __('app.leads.form.services') }}"
+                :multiple="true"
+                :options="$serviceOptions"
+                placeholder="{{ __('app.leads.form.services_placeholder') }}"
+                helper="{{ __('app.leads.form.services_helper') }}"
+                :disabled="(bool) $plan_id"
+                :error="$errors->first('service_ids')"
+                wireModel="service_ids"
+                :wireLive="true"
+            />
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <x-ds::input
+                    label="{{ __('app.leads.form.value_base') }}"
+                    wire:model.live="value_base"
+                    type="number"
+                    step="0.01"
+                    disabled
+                    :error="$errors->first('value_base')"
+                />
+
+                <x-ds::input
+                    label="{{ __('app.leads.form.value_final') }}"
+                    wire:model.live="value_final"
+                    type="number"
+                    step="0.01"
+                    disabled
+                    :error="$errors->first('value_final')"
+                />
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <x-ds::select
+                    label="{{ __('app.leads.form.discount_type') }}"
+                    wire:model.live="discount_type"
+                    :options="[
+                        ['value' => 'value', 'label' => __('app.leads.form.discount_type_value')],
+                        ['value' => 'percent', 'label' => __('app.leads.form.discount_type_percent')],
+                    ]"
+                    :error="$errors->first('discount_type')"
+                />
+
+                <x-ds::input
+                    label="{{ __('app.leads.form.discount_value') }}"
+                    wire:model.live="discount_value"
+                    type="number"
+                    step="0.01"
+                    :error="$errors->first('discount_value')"
+                />
+            </div>
 
             <x-ds::select
                 label="{{ __('app.leads.form.responsible') }}"
@@ -381,10 +437,66 @@
             @endif
 
             <x-ds::input label="{{ __('app.leads.form.name') }}" wire:model="name" required :error="$errors->first('name')" />
-            <x-ds::input label="{{ __('app.leads.form.whatsapp') }}" wire:model="whatsapp" :error="$errors->first('whatsapp')" />
-            <x-ds::input label="{{ __('app.leads.form.plan') }}" wire:model="plan" :error="$errors->first('plan')" />
-            <x-ds::textarea label="{{ __('app.leads.form.services') }}" wire:model="services" rows="3" :error="$errors->first('services')" />
-            <x-ds::input label="{{ __('app.leads.form.value') }}" wire:model="value" type="number" step="0.01" :error="$errors->first('value')" />
+            <x-ds::input-mask label="{{ __('app.leads.form.whatsapp') }}" wire:model="whatsapp" mask="phone" :error="$errors->first('whatsapp')" />
+            <x-ds::input-mask label="CNPJ" wire:model="cnpj" mask="cnpj" :error="$errors->first('cnpj')" />
+
+            <x-ds::select
+                label="{{ __('app.leads.form.plan') }}"
+                wire:model.live="plan_id"
+                :options="$planOptions"
+                :error="$errors->first('plan_id')"
+            />
+
+            <x-ds::select-search
+                label="{{ __('app.leads.form.services') }}"
+                :multiple="true"
+                :options="$serviceOptions"
+                placeholder="{{ __('app.leads.form.services_placeholder') }}"
+                helper="{{ __('app.leads.form.services_helper') }}"
+                :disabled="(bool) $plan_id"
+                :error="$errors->first('service_ids')"
+                wireModel="service_ids"
+            />
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <x-ds::input
+                    label="{{ __('app.leads.form.value_base') }}"
+                    wire:model.live="value_base"
+                    type="number"
+                    step="0.01"
+                    disabled
+                    :error="$errors->first('value_base')"
+                />
+
+                <x-ds::input
+                    label="{{ __('app.leads.form.value_final') }}"
+                    wire:model.live="value_final"
+                    type="number"
+                    step="0.01"
+                    disabled
+                    :error="$errors->first('value_final')"
+                />
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <x-ds::select
+                    label="{{ __('app.leads.form.discount_type') }}"
+                    wire:model.live="discount_type"
+                    :options="[
+                        ['value' => 'value', 'label' => __('app.leads.form.discount_type_value')],
+                        ['value' => 'percent', 'label' => __('app.leads.form.discount_type_percent')],
+                    ]"
+                    :error="$errors->first('discount_type')"
+                />
+
+                <x-ds::input
+                    label="{{ __('app.leads.form.discount_value') }}"
+                    wire:model.live="discount_value"
+                    type="number"
+                    step="0.01"
+                    :error="$errors->first('discount_value')"
+                />
+            </div>
 
             <x-ds::select
                 label="{{ __('app.leads.form.responsible') }}"
