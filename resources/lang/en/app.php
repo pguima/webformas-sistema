@@ -36,6 +36,10 @@ return [
             'title' => 'Client profile',
             'subtitle' => 'Details for :name',
             'back' => 'Back',
+            'tabs' => [
+                'profile' => 'Profile',
+                'web' => 'Web',
+            ],
 
             'fields' => [
                 'name' => 'Name',
@@ -98,6 +102,115 @@ return [
             'updated_success' => 'Client updated successfully!',
             'deleted_success' => 'Client deleted successfully!',
             'error_not_found' => 'Client not found.',
+        ],
+    ],
+
+    'webs' => [
+        'title' => 'Web',
+        'subtitle' => 'Manage websites and landing pages.',
+        'add' => '+ Web',
+        'search_placeholder' => 'Search...',
+        'per_page' => 'Per page',
+        'no_results' => 'No results found for ":search".',
+
+        'client_tab' => [
+            'title' => 'Web',
+            'subtitle' => 'Websites and landing pages for :name',
+        ],
+
+        'table' => [
+            'name' => 'Name',
+            'client' => 'Client',
+            'url' => 'URL',
+            'status' => 'Status',
+            'actions' => 'Actions',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'New web',
+            'create_description' => 'Create a new website/landing page.',
+            'edit_title' => 'Edit web',
+            'edit_description' => 'Update the website/landing page details.',
+        ],
+
+        'form' => [
+            'client' => 'Client',
+            'client_placeholder' => 'Select a client',
+            'name' => 'Name',
+            'url' => 'URL',
+            'type' => 'Type',
+            'objective' => 'Objective',
+            'cta_main' => 'Main CTA',
+            'platform' => 'Platform',
+            'status' => 'Status',
+            'responsible' => 'Owner',
+            'site_created_at' => 'Creation date',
+            'site_updated_at' => 'Last update',
+            'hosting' => 'Hosting',
+            'domain_until' => 'Domain until',
+            'ssl' => 'SSL',
+            'certificate_until' => 'Certificate until',
+            'gtm_analytics' => 'GTM/Analytics',
+            'pagespeed_mobile' => 'PageSpeed (mobile)',
+            'pagespeed_desktop' => 'PageSpeed (desktop)',
+            'seo_score' => 'SEO score',
+            'priority' => 'Priority',
+            'notes' => 'Notes',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+        ],
+
+        'types' => [
+            'Institucional' => 'Institutional',
+            'Blog' => 'Blog',
+            'E-commerce' => 'E-commerce',
+            'Portal/App' => 'Portal/App',
+            'Landing Page' => 'Landing Page',
+            'Hotsite' => 'Hotsite',
+            'Sistemas' => 'Systems',
+            'Outro' => 'Other',
+        ],
+
+        'objectives' => [
+            'Geração de Leads' => 'Lead generation',
+            'Vendas' => 'Sales',
+            'Inscrições' => 'Signups',
+            'Trial/Cadastro' => 'Trial/Signup',
+            'Branding' => 'Branding',
+            'Pesquisa' => 'Survey',
+            'Download' => 'Download',
+        ],
+
+        'platforms' => [
+            'WordPress' => 'WordPress',
+            'HTML' => 'HTML',
+        ],
+
+        'statuses' => [
+            'Ativo' => 'Active',
+            'Em revisão' => 'In review',
+            'Inativo' => 'Inactive',
+            'Em desenvolvimento' => 'In development',
+            'Pausado' => 'Paused',
+        ],
+
+        'delete' => [
+            'title' => 'Delete',
+            'description' => 'This action cannot be undone.',
+            'confirmation_label' => 'Confirmation',
+            'placeholder' => 'Type ":word" to confirm',
+            'cancel' => 'Cancel',
+            'confirm' => 'Delete',
+        ],
+
+        'messages' => [
+            'success_title' => 'Success',
+            'error_title' => 'Error',
+            'created_success' => 'Record created successfully!',
+            'updated_success' => 'Record updated successfully!',
+            'deleted_success' => 'Record deleted successfully!',
+            'error_not_found' => 'Record not found.',
+            'create_disabled' => 'Creation is not available on this page.',
         ],
     ],
 

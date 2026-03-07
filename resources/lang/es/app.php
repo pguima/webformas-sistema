@@ -36,6 +36,10 @@ return [
             'title' => 'Perfil del cliente',
             'subtitle' => 'Detalles de :name',
             'back' => 'Volver',
+            'tabs' => [
+                'profile' => 'Perfil',
+                'web' => 'Web',
+            ],
 
             'fields' => [
                 'name' => 'Nombre',
@@ -98,6 +102,115 @@ return [
             'updated_success' => '¡Cliente actualizado con éxito!',
             'deleted_success' => '¡Cliente eliminado con éxito!',
             'error_not_found' => 'Cliente no encontrado.',
+        ],
+    ],
+
+    'webs' => [
+        'title' => 'Webs',
+        'subtitle' => 'Administra sitios web y landing pages.',
+        'add' => '+ Web',
+        'search_placeholder' => 'Buscar...',
+        'per_page' => 'Por página',
+        'no_results' => 'No se encontraron resultados para ":search".',
+
+        'client_tab' => [
+            'title' => 'Web',
+            'subtitle' => 'Sitios y landing pages de :name',
+        ],
+
+        'table' => [
+            'name' => 'Nombre',
+            'client' => 'Cliente',
+            'url' => 'URL',
+            'status' => 'Estado',
+            'actions' => 'Acciones',
+        ],
+
+        'offcanvas' => [
+            'create_title' => 'Nuevo web',
+            'create_description' => 'Crea un nuevo sitio/landing page.',
+            'edit_title' => 'Editar web',
+            'edit_description' => 'Actualiza los datos del sitio/landing page.',
+        ],
+
+        'form' => [
+            'client' => 'Cliente',
+            'client_placeholder' => 'Selecciona un cliente',
+            'name' => 'Nombre',
+            'url' => 'URL',
+            'type' => 'Tipo',
+            'objective' => 'Objetivo',
+            'cta_main' => 'CTA principal',
+            'platform' => 'Plataforma',
+            'status' => 'Estado',
+            'responsible' => 'Responsable',
+            'site_created_at' => 'Fecha de creación',
+            'site_updated_at' => 'Última actualización',
+            'hosting' => 'Hosting',
+            'domain_until' => 'Dominio hasta',
+            'ssl' => 'SSL',
+            'certificate_until' => 'Certificado hasta',
+            'gtm_analytics' => 'GTM/Analytics',
+            'pagespeed_mobile' => 'PageSpeed (móvil)',
+            'pagespeed_desktop' => 'PageSpeed (escritorio)',
+            'seo_score' => 'SEO score',
+            'priority' => 'Prioridad',
+            'notes' => 'Observaciones',
+            'cancel' => 'Cancelar',
+            'save' => 'Guardar',
+        ],
+
+        'types' => [
+            'Institucional' => 'Institucional',
+            'Blog' => 'Blog',
+            'E-commerce' => 'E-commerce',
+            'Portal/App' => 'Portal/App',
+            'Landing Page' => 'Landing Page',
+            'Hotsite' => 'Hotsite',
+            'Sistemas' => 'Sistemas',
+            'Outro' => 'Otro',
+        ],
+
+        'objectives' => [
+            'Geração de Leads' => 'Generación de leads',
+            'Vendas' => 'Ventas',
+            'Inscrições' => 'Inscripciones',
+            'Trial/Cadastro' => 'Trial/Registro',
+            'Branding' => 'Branding',
+            'Pesquisa' => 'Encuesta',
+            'Download' => 'Descarga',
+        ],
+
+        'platforms' => [
+            'WordPress' => 'WordPress',
+            'HTML' => 'HTML',
+        ],
+
+        'statuses' => [
+            'Ativo' => 'Activo',
+            'Em revisão' => 'En revisión',
+            'Inativo' => 'Inactivo',
+            'Em desenvolvimento' => 'En desarrollo',
+            'Pausado' => 'Pausado',
+        ],
+
+        'delete' => [
+            'title' => 'Eliminar',
+            'description' => 'Esta acción no se puede deshacer.',
+            'confirmation_label' => 'Confirmación',
+            'placeholder' => 'Escribe ":word" para confirmar',
+            'cancel' => 'Cancelar',
+            'confirm' => 'Eliminar',
+        ],
+
+        'messages' => [
+            'success_title' => 'Éxito',
+            'error_title' => 'Error',
+            'created_success' => '¡Registro creado con éxito!',
+            'updated_success' => '¡Registro actualizado con éxito!',
+            'deleted_success' => '¡Registro eliminado con éxito!',
+            'error_not_found' => 'Registro no encontrado.',
+            'create_disabled' => 'La creación no está disponible en esta página.',
         ],
     ],
 

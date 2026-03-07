@@ -118,6 +118,7 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin,Admin'])->group(function
     Route::get('/users', \App\Livewire\Users\Index::class);
     Route::get('/clients', \App\Livewire\Clients\Index::class);
     Route::get('/clients/{client}', \App\Livewire\Clients\Show::class);
+    Route::get('/web', \App\Livewire\Webs\Index::class);
     Route::get('/services', \App\Livewire\Services\Index::class);
     Route::get('/plans', \App\Livewire\Plans\Index::class);
     Route::get('/widgets', \App\Livewire\Widgets\Index::class);
