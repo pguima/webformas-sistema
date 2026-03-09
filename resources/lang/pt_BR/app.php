@@ -10,6 +10,7 @@ return [
         'users' => 'Usuários',
         'widgets' => 'Widgets',
         'leads' => 'Leads',
+        'contacts' => 'Contatos',
         'api_tokens' => 'Tokens API',
         'profile' => 'Perfil',
         'settings' => 'Configurações',
@@ -22,6 +23,7 @@ return [
         'folders' => 'Pastas',
         'files' => 'Arquivos',
         'management' => 'Gestão',
+        'campaigns' => 'Campanhas',
     ],
 
     'clients' => [
@@ -39,6 +41,8 @@ return [
             'tabs' => [
                 'profile' => 'Perfil',
                 'web' => 'Web',
+                'campaign' => 'Campanha',
+                'contacts' => 'Contatos',
             ],
 
             'fields' => [
@@ -61,6 +65,10 @@ return [
                     'title' => 'Linha do tempo',
                     'description' => 'Eventos e movimentações relacionados ao cliente.',
                     'empty' => 'Nenhum evento registrado ainda.',
+                ],
+                'campaign' => [
+                    'title' => 'Campanha (Integração)',
+                    'description' => 'Configure os IDs para carregar os dados da dashboard.',
                 ],
             ],
         ],
@@ -210,6 +218,107 @@ return [
             'updated_success' => 'Registro atualizado com sucesso!',
             'deleted_success' => 'Registro excluído com sucesso!',
             'error_not_found' => 'Registro não encontrado.',
+            'create_disabled' => 'A criação não está disponível nesta página.',
+        ],
+    ],
+
+    'campaigns' => [
+        'title' => 'Campanhas',
+        'subtitle' => 'Gerencie as integrações de campanhas por cliente.',
+        'search_placeholder' => 'Buscar...',
+        'per_page' => 'Por página',
+        'no_results' => 'Nenhum registro encontrado para ":search".',
+
+        'fields' => [
+            'manager_customer_id' => 'Manager Customer ID',
+            'client_customer_id' => 'Client Customer ID',
+        ],
+
+        'table' => [
+            'client' => 'Cliente',
+            'actions' => 'Ações',
+            'name' => 'Campanha',
+            'channel' => 'Canal',
+            'status' => 'Status',
+            'impressions' => 'Impressões',
+            'interactions' => 'Interações',
+            'ctr' => 'CTR',
+            'conversions' => 'Conversões',
+            'cost' => 'Custo',
+        ],
+
+        'form' => [
+            'client_placeholder' => 'Selecione um cliente',
+            'cancel' => 'Cancelar',
+            'save' => 'Salvar',
+        ],
+
+        'offcanvas' => [
+            'edit_title' => 'Editar campanha',
+            'edit_description' => 'Atualize os IDs de integração.',
+        ],
+
+        'delete' => [
+            'title' => 'Excluir',
+            'description' => 'Esta ação não pode ser desfeita.',
+            'confirmation_label' => 'Confirmação',
+            'placeholder' => 'Digite ":word" para confirmar',
+            'cancel' => 'Cancelar',
+            'confirm' => 'Excluir',
+        ],
+
+        'profile_card' => [
+            'title' => 'Campanha (Integração)',
+            'description' => 'Configure os IDs para carregar os dados da dashboard.',
+        ],
+
+        'client_tab' => [
+            'title' => 'Campanha',
+            'subtitle' => 'Dashboard de campanha de :name',
+        ],
+
+        'dashboard' => [
+            'title' => 'Dashboard de campanha',
+            'subtitle' => 'Dados de :name',
+            'back' => 'Voltar',
+            'period' => 'Período',
+            'refresh' => 'Atualizar',
+            'loading' => 'Carregando...',
+            'table_title' => 'Campanhas',
+            'empty' => 'Sem dados para o período selecionado.',
+            'missing_ids' => 'Informe os IDs (Manager/Client Customer ID) no perfil do cliente para carregar a dashboard.',
+            'error' => 'Falha ao carregar dados da integração.',
+        ],
+
+        'periods' => [
+            'All Time' => 'All Time',
+            'Today' => 'Today',
+            'Yesterday' => 'Yesterday',
+            'Last 7 Days' => 'Last 7 Days',
+            'Last 14 Days' => 'Last 14 Days',
+            'Last 30 Days' => 'Last 30 Days',
+            'Last Business Week' => 'Last Business Week',
+            'This Month' => 'This Month',
+            'Last Month' => 'Last Month',
+        ],
+
+        'metrics' => [
+            'period' => 'Período: :period',
+            'cost' => 'Custo',
+            'conversions' => 'Conversões',
+            'impressions' => 'Impressões',
+            'interactions' => 'Interações',
+            'video_views' => 'Visualizações de vídeo',
+            'cpc' => 'CPC médio:',
+            'cpa' => 'CPA:',
+        ],
+
+        'messages' => [
+            'success_title' => 'Sucesso',
+            'error_title' => 'Erro',
+            'updated_success' => 'Campanha atualizada com sucesso!',
+            'deleted_success' => 'Campanha excluída com sucesso!',
+            'error_not_found' => 'Campanha não encontrada.',
             'create_disabled' => 'A criação não está disponível nesta página.',
         ],
     ],

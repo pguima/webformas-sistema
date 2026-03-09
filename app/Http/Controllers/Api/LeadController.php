@@ -60,6 +60,7 @@ class LeadController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
+            'empresa' => ['nullable', 'string', 'max:255'],
             'plan_id' => ['nullable', 'integer', 'exists:plans,id'],
             'service_ids' => ['nullable', 'array'],
             'service_ids.*' => ['integer', 'exists:services,id'],
@@ -98,6 +99,7 @@ class LeadController extends Controller
         $lead = Lead::create([
             'name' => $data['name'],
             'whatsapp' => $data['whatsapp'] ?? null,
+            'empresa' => $data['empresa'] ?? null,
             'plan_id' => $data['plan_id'] ?? null,
             'plan' => $planName,
             'service_ids' => $computed['service_ids'] ?? null,
@@ -124,6 +126,7 @@ class LeadController extends Controller
         $data = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'min:2', 'max:255'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
+            'empresa' => ['nullable', 'string', 'max:255'],
             'plan_id' => ['nullable', 'integer', 'exists:plans,id'],
             'service_ids' => ['nullable', 'array'],
             'service_ids.*' => ['integer', 'exists:services,id'],

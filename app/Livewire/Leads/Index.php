@@ -3,6 +3,7 @@
 namespace App\Livewire\Leads;
 
 use App\Models\Client;
+use App\Models\Contact;
 use App\Models\Lead;
 use App\Models\Plan;
 use App\Models\Service;
@@ -29,6 +30,8 @@ class Index extends Component
     public ?string $name = null;
 
     public ?string $whatsapp = null;
+
+    public ?string $empresa = null;
 
     public ?string $cnpj = null;
 
@@ -58,6 +61,7 @@ class Index extends Component
         return [
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'whatsapp' => ['nullable', 'string', 'max:30'],
+            'empresa' => ['nullable', 'string', 'max:255'],
             'cnpj' => ['nullable', 'string', 'max:18'],
             'plan_id' => ['nullable', 'integer', 'exists:plans,id'],
             'service_ids' => ['array'],
@@ -152,6 +156,7 @@ class Index extends Component
             'leadId',
             'name',
             'whatsapp',
+            'empresa',
             'cnpj',
             'plan_id',
             'service_ids',
@@ -177,6 +182,7 @@ class Index extends Component
         $this->leadId = $lead->id;
         $this->name = $lead->name;
         $this->whatsapp = $lead->whatsapp;
+        $this->empresa = $lead->empresa;
         $this->cnpj = $lead->cnpj;
         $this->plan_id = $lead->plan_id;
         $this->service_ids = array_map('strval', $lead->service_ids ?? []);
@@ -238,6 +244,7 @@ class Index extends Component
             'leadId',
             'name',
             'whatsapp',
+            'empresa',
             'cnpj',
             'plan_id',
             'service_ids',
@@ -284,18 +291,39 @@ class Index extends Component
             ]);
 
             if ($toStage === 'Ganho') {
-                $name = (string) $lead->name;
+                $clientName = (string) ($lead->empresa ?: $lead->name);
                 $cnpj = $lead->cnpj ? (string) $lead->cnpj : null;
 
                 if ($cnpj) {
-                    Client::query()->updateOrCreate(
+                    $client = Client::query()->updateOrCreate(
                         ['cnpj' => $cnpj],
-                        ['name' => $name]
+                        ['name' => $clientName]
                     );
                 } else {
-                    Client::query()->create([
-                        'name' => $name,
+                    $client = Client::query()->create([
+                        'name' => $clientName,
                         'cnpj' => null,
+                    ]);
+                }
+
+                $contactName = (string) $lead->name;
+                $contactWhatsapp = $lead->whatsapp ? (string) $lead->whatsapp : null;
+
+                if ($contactWhatsapp) {
+                    Contact::query()->firstOrCreate([
+                        'client_id' => $client->id,
+                        'whatsapp' => $contactWhatsapp,
+                    ], [
+                        'name' => $contactName,
+                        'role' => null,
+                    ]);
+                } else {
+                    Contact::query()->firstOrCreate([
+                        'client_id' => $client->id,
+                        'name' => $contactName,
+                    ], [
+                        'whatsapp' => null,
+                        'role' => null,
                     ]);
                 }
             }
@@ -335,6 +363,7 @@ class Index extends Component
                             'name' => (string) $lead->name,
                             'stage' => (string) $lead->stage,
                             'whatsapp' => $lead->whatsapp,
+                            'empresa' => $lead->empresa,
                             'cnpj' => $lead->cnpj,
                             'plan' => $lead->plan,
                             'services' => $lead->services,

@@ -119,11 +119,15 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin,Admin'])->group(function
     Route::get('/clients', \App\Livewire\Clients\Index::class);
     Route::get('/clients/{client}', \App\Livewire\Clients\Show::class);
     Route::get('/web', \App\Livewire\Webs\Index::class);
+    Route::get('/campaigns', \App\Livewire\Campaigns\Index::class);
+    Route::get('/campaigns/{campaign}', \App\Livewire\Campaigns\Show::class);
     Route::get('/services', \App\Livewire\Services\Index::class);
     Route::get('/plans', \App\Livewire\Plans\Index::class);
     Route::get('/widgets', \App\Livewire\Widgets\Index::class);
 
     Route::get('/leads', \App\Livewire\Leads\Index::class);
+
+    Route::get('/contatos', \App\Livewire\Contacts\Index::class);
 
     Route::get('/widgets/{widget}/json', function (\App\Models\Widget $widget) {
         $json = json_encode($widget->json_code ?? [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);

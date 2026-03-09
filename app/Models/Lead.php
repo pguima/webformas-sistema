@@ -13,6 +13,7 @@ class Lead extends Model
     protected $fillable = [
         'name',
         'whatsapp',
+        'empresa',
         'cnpj',
         'plan_id',
         'plan',

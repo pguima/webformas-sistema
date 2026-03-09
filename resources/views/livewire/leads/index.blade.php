@@ -206,6 +206,10 @@
                                                         <x-ds::badge style="soft" variant="success" icon="solar:phone-linear">{{ __('app.leads.card.whatsapp') }}: <span class="ml-1" x-text="lead.whatsapp"></span></x-ds::badge>
                                                     </template>
 
+                                                    <template x-if="lead.empresa">
+                                                        <x-ds::badge style="soft" variant="info" icon="solar:buildings-2-linear">Empresa: <span class="ml-1" x-text="lead.empresa"></span></x-ds::badge>
+                                                    </template>
+
                                                     <template x-if="lead.value">
                                                         <x-ds::badge style="soft" variant="secondary" icon="solar:tag-price-linear">{{ __('app.leads.card.value') }}: <span class="ml-1" x-text="lead.value"></span></x-ds::badge>
                                                     </template>
@@ -333,6 +337,7 @@
 
             <x-ds::input label="{{ __('app.leads.form.name') }}" wire:model="name" required :error="$errors->first('name')" />
             <x-ds::input-mask label="{{ __('app.leads.form.whatsapp') }}" wire:model="whatsapp" mask="phone" :error="$errors->first('whatsapp')" />
+            <x-ds::input label="Empresa" wire:model="empresa" :error="$errors->first('empresa')" />
             <x-ds::input-mask label="CNPJ" wire:model="cnpj" mask="cnpj" :error="$errors->first('cnpj')" />
             <x-ds::select
                 label="{{ __('app.leads.form.plan') }}"
@@ -438,6 +443,7 @@
 
             <x-ds::input label="{{ __('app.leads.form.name') }}" wire:model="name" required :error="$errors->first('name')" />
             <x-ds::input-mask label="{{ __('app.leads.form.whatsapp') }}" wire:model="whatsapp" mask="phone" :error="$errors->first('whatsapp')" />
+            <x-ds::input label="Empresa" wire:model="empresa" :error="$errors->first('empresa')" />
             <x-ds::input-mask label="CNPJ" wire:model="cnpj" mask="cnpj" :error="$errors->first('cnpj')" />
 
             <x-ds::select

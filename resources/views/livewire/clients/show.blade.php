@@ -42,6 +42,28 @@
             >
                 {{ __('app.clients.profile.tabs.web') }}
             </button>
+
+            <button
+                type="button"
+                role="tab"
+                x-on:click="active = 'campaign'"
+                x-bind:aria-selected="active === 'campaign' ? 'true' : 'false'"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-(--color-primary)/20"
+                x-bind:class="active === 'campaign' ? 'border-b-2 border-(--color-primary) text-(--color-primary)' : 'border-b-2 border-transparent text-(--text-secondary) hover:text-(--text-primary)'"
+            >
+                {{ __('app.clients.profile.tabs.campaign') }}
+            </button>
+
+            <button
+                type="button"
+                role="tab"
+                x-on:click="active = 'contacts'"
+                x-bind:aria-selected="active === 'contacts' ? 'true' : 'false'"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-(--color-primary)/20"
+                x-bind:class="active === 'contacts' ? 'border-b-2 border-(--color-primary) text-(--color-primary)' : 'border-b-2 border-transparent text-(--text-secondary) hover:text-(--text-primary)'"
+            >
+                {{ __('app.clients.profile.tabs.contacts') }}
+            </button>
         </div>
 
         <div class="mt-6">
@@ -75,6 +97,8 @@
                             </div>
                         </x-ds::card>
 
+                        <livewire:clients.campaign-profile :client="$client" :key="'client-campaign-profile-' . $client->id" />
+
                         <x-ds::card title="{{ __('app.clients.profile.cards.timeline.title') }}" description="{{ __('app.clients.profile.cards.timeline.description') }}">
                             <div class="text-sm text-(--text-secondary)">
                                 {{ __('app.clients.profile.cards.timeline.empty') }}
@@ -86,6 +110,14 @@
 
             <div x-cloak x-show="active === 'web'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-x-1" x-transition:enter-end="opacity-100 translate-x-0">
                 <livewire:clients.webs :client="$client" :key="'client-webs-' . $client->id" />
+            </div>
+
+            <div x-cloak x-show="active === 'campaign'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-x-1" x-transition:enter-end="opacity-100 translate-x-0">
+                <livewire:clients.campaign-tab :client="$client" :key="'client-campaign-tab-' . $client->id" />
+            </div>
+
+            <div x-cloak x-show="active === 'contacts'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-x-1" x-transition:enter-end="opacity-100 translate-x-0">
+                <livewire:clients.contacts :client="$client" :key="'client-contacts-' . $client->id" />
             </div>
         </div>
     </div>

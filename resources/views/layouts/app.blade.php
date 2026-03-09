@@ -34,6 +34,7 @@
     <!-- Dependencies -->
 
     <script defer src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 
 <body class="min-h-screen bg-(--surface-page) text-(--text-primary) antialiased">
@@ -73,6 +74,7 @@
                                 ['url' => '/plans', 'icon' => 'solar:bookmark-linear', 'label' => 'app.sidebar.plans'],
                                 ['url' => '/widgets', 'icon' => 'solar:widget-4-linear', 'label' => 'app.sidebar.widgets'],
                                 ['url' => '/leads', 'icon' => 'solar:notes-minimalistic-linear', 'label' => 'app.sidebar.leads'],
+                                ['url' => '/contatos', 'icon' => 'solar:users-group-rounded-linear', 'label' => 'app.sidebar.contacts'],
                             ]
                         ]]
                         : []),
@@ -108,6 +110,8 @@
     </div>
 
     @livewireScripts
+
+    @stack('scripts')
 
     <script>
         (() => {

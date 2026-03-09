@@ -17,6 +17,7 @@ return [
         'users' => 'Users',
         'widgets' => 'Widgets',
         'leads' => 'Leads',
+        'contacts' => 'Contacts',
         'api_tokens' => 'API Tokens',
         'profile' => 'Profile',
         'settings' => 'Settings',
@@ -39,6 +40,8 @@ return [
             'tabs' => [
                 'profile' => 'Profile',
                 'web' => 'Web',
+                'campaign' => 'Campaign',
+                'contacts' => 'Contacts',
             ],
 
             'fields' => [
@@ -210,6 +213,107 @@ return [
             'updated_success' => 'Record updated successfully!',
             'deleted_success' => 'Record deleted successfully!',
             'error_not_found' => 'Record not found.',
+            'create_disabled' => 'Creation is not available on this page.',
+        ],
+    ],
+
+    'campaigns' => [
+        'title' => 'Campaigns',
+        'subtitle' => 'Manage campaign integrations per client.',
+        'search_placeholder' => 'Search...',
+        'per_page' => 'Per page',
+        'no_results' => 'No results found for ":search".',
+
+        'fields' => [
+            'manager_customer_id' => 'Manager Customer ID',
+            'client_customer_id' => 'Client Customer ID',
+        ],
+
+        'table' => [
+            'client' => 'Client',
+            'actions' => 'Actions',
+            'name' => 'Campaign',
+            'channel' => 'Channel',
+            'status' => 'Status',
+            'impressions' => 'Impressions',
+            'interactions' => 'Interactions',
+            'ctr' => 'CTR',
+            'conversions' => 'Conversions',
+            'cost' => 'Cost',
+        ],
+
+        'form' => [
+            'client_placeholder' => 'Select a client',
+            'cancel' => 'Cancel',
+            'save' => 'Save',
+        ],
+
+        'offcanvas' => [
+            'edit_title' => 'Edit campaign',
+            'edit_description' => 'Update integration IDs.',
+        ],
+
+        'delete' => [
+            'title' => 'Delete',
+            'description' => 'This action cannot be undone.',
+            'confirmation_label' => 'Confirmation',
+            'placeholder' => 'Type ":word" to confirm',
+            'cancel' => 'Cancel',
+            'confirm' => 'Delete',
+        ],
+
+        'profile_card' => [
+            'title' => 'Campaign (Integration)',
+            'description' => 'Configure IDs to load the dashboard data.',
+        ],
+
+        'client_tab' => [
+            'title' => 'Campaign',
+            'subtitle' => 'Campaign dashboard for :name',
+        ],
+
+        'dashboard' => [
+            'title' => 'Campaign dashboard',
+            'subtitle' => 'Data for :name',
+            'back' => 'Back',
+            'period' => 'Period',
+            'refresh' => 'Refresh',
+            'loading' => 'Loading...',
+            'table_title' => 'Campaigns',
+            'empty' => 'No data for the selected period.',
+            'missing_ids' => 'Fill in the IDs (Manager/Client Customer ID) in the client profile to load the dashboard.',
+            'error' => 'Failed to load integration data.',
+        ],
+
+        'periods' => [
+            'All Time' => 'All Time',
+            'Today' => 'Today',
+            'Yesterday' => 'Yesterday',
+            'Last 7 Days' => 'Last 7 Days',
+            'Last 14 Days' => 'Last 14 Days',
+            'Last 30 Days' => 'Last 30 Days',
+            'Last Business Week' => 'Last Business Week',
+            'This Month' => 'This Month',
+            'Last Month' => 'Last Month',
+        ],
+
+        'metrics' => [
+            'period' => 'Period: :period',
+            'cost' => 'Cost',
+            'conversions' => 'Conversions',
+            'impressions' => 'Impressions',
+            'interactions' => 'Interactions',
+            'video_views' => 'Video views',
+            'cpc' => 'Avg. CPC:',
+            'cpa' => 'CPA:',
+        ],
+
+        'messages' => [
+            'success_title' => 'Success',
+            'error_title' => 'Error',
+            'updated_success' => 'Campaign updated successfully!',
+            'deleted_success' => 'Campaign deleted successfully!',
+            'error_not_found' => 'Campaign not found.',
             'create_disabled' => 'Creation is not available on this page.',
         ],
     ],
