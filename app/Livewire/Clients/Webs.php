@@ -6,13 +6,22 @@ use App\Livewire\Concerns\HasViewMode;
 use App\Models\Client;
 use App\Models\Web;
 use Livewire\Component;
+use Livewire\Attributes\On;
 use Livewire\WithPagination;
 
 class Webs extends Component
 {
     use WithPagination, HasViewMode;
 
+    #[On('client-webs-refresh')]
+    public function refreshList(): void
+    {
+        // no-op: apenas força o componente a re-renderizar
+    }
+
     public Client $client;
+
+    public ?int $auditWebId = null;
 
     public string $search = '';
 
@@ -21,6 +30,21 @@ class Webs extends Component
     public function mount(Client $client): void
     {
         $this->client = $client;
+    }
+
+    public function audit(int $id): void
+    {
+        $web = Web::query()
+            ->where('client_id', $this->client->id)
+            ->select(['id'])
+            ->find($id);
+
+        if (! $web) {
+            return;
+        }
+
+        $this->auditWebId = $web->id;
+        $this->dispatch('open-client-web-audit-offcanvas');
     }
 
     public function updatedSearch(): void
@@ -66,12 +90,6 @@ class Webs extends Component
 
     public ?string $gtm_analytics = null;
 
-    public $pagespeed_mobile = null;
-
-    public $pagespeed_desktop = null;
-
-    public $seo_score = null;
-
     public $priority = null;
 
     public ?string $notes = null;
@@ -107,10 +125,6 @@ class Webs extends Component
             'certificate_until' => ['nullable', 'date'],
             'gtm_analytics' => ['nullable', 'string', 'max:255'],
 
-            'pagespeed_mobile' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'pagespeed_desktop' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'seo_score' => ['nullable', 'integer', 'min:0', 'max:100'],
-
             'priority' => ['nullable', 'integer', 'min:0', 'max:100'],
             'notes' => ['nullable', 'string'],
         ];
@@ -135,9 +149,6 @@ class Webs extends Component
             'ssl',
             'certificate_until',
             'gtm_analytics',
-            'pagespeed_mobile',
-            'pagespeed_desktop',
-            'seo_score',
             'priority',
             'notes',
         ]);
@@ -168,9 +179,6 @@ class Webs extends Component
                 'ssl',
                 'certificate_until',
                 'gtm_analytics',
-                'pagespeed_mobile',
-                'pagespeed_desktop',
-                'seo_score',
                 'priority',
                 'notes',
             ])
@@ -196,9 +204,6 @@ class Webs extends Component
             'ssl' => $web->ssl,
             'certificate_until' => optional($web->certificate_until)->format('Y-m-d'),
             'gtm_analytics' => $web->gtm_analytics,
-            'pagespeed_mobile' => $web->pagespeed_mobile,
-            'pagespeed_desktop' => $web->pagespeed_desktop,
-            'seo_score' => $web->seo_score,
             'priority' => $web->priority,
             'notes' => $web->notes,
         ];
@@ -230,9 +235,6 @@ class Webs extends Component
         $this->ssl = $web->ssl;
         $this->certificate_until = optional($web->certificate_until)->format('Y-m-d');
         $this->gtm_analytics = $web->gtm_analytics;
-        $this->pagespeed_mobile = $web->pagespeed_mobile;
-        $this->pagespeed_desktop = $web->pagespeed_desktop;
-        $this->seo_score = $web->seo_score;
         $this->priority = $web->priority;
         $this->notes = $web->notes;
     }

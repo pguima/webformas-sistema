@@ -56,6 +56,54 @@ class Index extends Component
 
     public string $stage = 'Novo';
 
+    public ?int $leadToDeleteId = null;
+
+    public string $deleteConfirmation = '';
+
+    private function isLockedStage(?string $stage): bool
+    {
+        return in_array($stage, ['Ganho', 'Perdido'], true);
+    }
+
+    private function buildColumns(): array
+    {
+        $leads = Lead::query()
+            ->with(['responsibleUser:id,name'])
+            ->orderBy('stage')
+            ->orderBy('position')
+            ->get();
+
+        return collect(self::STAGES)
+            ->map(function ($stage) use ($leads) {
+                $items = $leads->where('stage', $stage)->values();
+
+                return [
+                    'stage' => $stage,
+                    'count' => $items->count(),
+                    'leads' => $items->map(function (Lead $lead) {
+                        return [
+                            'id' => (int) $lead->id,
+                            'name' => (string) $lead->name,
+                            'stage' => (string) $lead->stage,
+                            'is_locked' => $this->isLockedStage($lead->stage),
+                            'whatsapp' => $lead->whatsapp,
+                            'empresa' => $lead->empresa,
+                            'cnpj' => $lead->cnpj,
+                            'plan' => $lead->plan,
+                            'services' => $lead->services,
+                            'value' => $lead->value,
+                            'responsible' => $lead->responsibleUser?->name,
+                            'origin' => $lead->origin,
+                            'campaign' => $lead->campaign,
+                            'updated_at' => optional($lead->updated_at)?->toISOString(),
+                        ];
+                    })->all(),
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
     public function rules(): array
     {
         return [
@@ -179,6 +227,11 @@ class Index extends Component
     {
         $lead = Lead::findOrFail($id);
 
+        if ($this->isLockedStage($lead->stage)) {
+            $this->dispatch('notify', message: __('app.leads.messages.locked'), variant: 'danger', title: __('app.leads.messages.error_title'));
+            return;
+        }
+
         $this->leadId = $lead->id;
         $this->name = $lead->name;
         $this->whatsapp = $lead->whatsapp;
@@ -226,6 +279,12 @@ class Index extends Component
 
         if ($this->leadId) {
             $lead = Lead::findOrFail($this->leadId);
+
+            if ($this->isLockedStage($lead->stage)) {
+                $this->dispatch('notify', message: __('app.leads.messages.locked'), variant: 'danger', title: __('app.leads.messages.error_title'));
+                return;
+            }
+
             $lead->update($dataToPersist);
 
             $this->dispatch('notify', message: __('app.leads.messages.updated_success'), variant: 'success', title: __('app.leads.messages.success_title'));
@@ -238,6 +297,8 @@ class Index extends Component
 
             $this->dispatch('notify', message: __('app.leads.messages.created_success'), variant: 'success', title: __('app.leads.messages.success_title'));
         }
+
+        $this->dispatch('leads-updated', columns: $this->buildColumns());
 
         $this->dispatch('close-lead-offcanvas');
         $this->reset([
@@ -260,17 +321,43 @@ class Index extends Component
         $this->service_ids = [];
     }
 
-    public function delete(int $id): void
+    public function confirmDelete(int $id): void
     {
-        $lead = Lead::find($id);
+        $this->leadToDeleteId = $id;
+        $this->deleteConfirmation = '';
+        $this->resetErrorBag('deleteConfirmation');
+        $this->dispatch('open-delete-modal');
+    }
+
+    public function delete(): void
+    {
+        if ($this->deleteConfirmation !== 'DELETE') {
+            $this->addError('deleteConfirmation', __('app.leads.delete.placeholder', ['word' => 'DELETE']));
+            return;
+        }
+
+        $lead = Lead::find($this->leadToDeleteId);
         if (! $lead) {
             $this->dispatch('notify', message: __('app.leads.messages.error_not_found'), variant: 'danger', title: __('app.leads.messages.error_title'));
+            $this->dispatch('close-delete-modal');
+            $this->reset(['leadToDeleteId', 'deleteConfirmation']);
+            return;
+        }
+
+        if ($this->isLockedStage($lead->stage)) {
+            $this->dispatch('notify', message: __('app.leads.messages.locked'), variant: 'danger', title: __('app.leads.messages.error_title'));
+            $this->dispatch('close-delete-modal');
+            $this->reset(['leadToDeleteId', 'deleteConfirmation']);
             return;
         }
 
         $lead->delete();
 
         $this->dispatch('notify', message: __('app.leads.messages.deleted_success'), variant: 'success', title: __('app.leads.messages.success_title'));
+        $this->dispatch('close-delete-modal');
+        $this->reset(['leadToDeleteId', 'deleteConfirmation']);
+
+        $this->dispatch('leads-updated', columns: $this->buildColumns());
     }
 
     public function moveLead(int $leadId, string $toStage, int $toIndex): void
@@ -284,6 +371,11 @@ class Index extends Component
             return;
         }
 
+        if ($this->isLockedStage($lead->stage) && $lead->stage !== $toStage) {
+            $this->dispatch('notify', message: __('app.leads.messages.locked'), variant: 'danger', title: __('app.leads.messages.error_title'));
+            return;
+        }
+
         DB::transaction(function () use ($lead, $toStage, $toIndex) {
             $lead->update([
                 'stage' => $toStage,
@@ -294,15 +386,24 @@ class Index extends Component
                 $clientName = (string) ($lead->empresa ?: $lead->name);
                 $cnpj = $lead->cnpj ? (string) $lead->cnpj : null;
 
+                $clientPayload = [
+                    'name' => $clientName,
+                    'plan_id' => $lead->plan_id,
+                    'service_ids' => is_array($lead->service_ids) ? $lead->service_ids : [],
+                    'contract_value' => $lead->value_final,
+                    'origin' => $lead->origin,
+                    'campaign' => $lead->campaign,
+                ];
+
                 if ($cnpj) {
                     $client = Client::query()->updateOrCreate(
                         ['cnpj' => $cnpj],
-                        ['name' => $clientName]
+                        $clientPayload + ['cnpj' => $cnpj]
                     );
                 } else {
                     $client = Client::query()->create([
-                        'name' => $clientName,
                         'cnpj' => null,
+                        ...$clientPayload,
                     ]);
                 }
 
@@ -328,15 +429,13 @@ class Index extends Component
                 }
             }
         });
+
+        $this->dispatch('leads-updated', columns: $this->buildColumns());
     }
 
     public function render()
     {
-        $leads = Lead::query()
-            ->with(['responsibleUser:id,name'])
-            ->orderBy('stage')
-            ->orderBy('position')
-            ->get();
+        $columns = $this->buildColumns();
 
         $users = User::query()->orderBy('name')->get(['id', 'name']);
 
@@ -349,35 +448,6 @@ class Index extends Component
         ])->all();
 
         $serviceOptions = $services->map(fn ($s) => ['value' => (string) $s->id, 'label' => $s->name])->values()->all();
-
-        $columns = collect(self::STAGES)
-            ->map(function ($stage) use ($leads) {
-                $items = $leads->where('stage', $stage)->values();
-
-                return [
-                    'stage' => $stage,
-                    'count' => $items->count(),
-                    'leads' => $items->map(function (Lead $lead) {
-                        return [
-                            'id' => (int) $lead->id,
-                            'name' => (string) $lead->name,
-                            'stage' => (string) $lead->stage,
-                            'whatsapp' => $lead->whatsapp,
-                            'empresa' => $lead->empresa,
-                            'cnpj' => $lead->cnpj,
-                            'plan' => $lead->plan,
-                            'services' => $lead->services,
-                            'value' => $lead->value,
-                            'responsible' => $lead->responsibleUser?->name,
-                            'origin' => $lead->origin,
-                            'campaign' => $lead->campaign,
-                            'updated_at' => optional($lead->updated_at)?->toISOString(),
-                        ];
-                    })->all(),
-                ];
-            })
-            ->values()
-            ->all();
 
         return view('livewire.leads.index', [
             'columns' => $columns,

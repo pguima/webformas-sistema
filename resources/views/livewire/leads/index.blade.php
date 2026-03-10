@@ -45,6 +45,11 @@
                     panStartX: 0,
                     panScrollLeft: 0,
 
+                    isLocked(leadOrStage) {
+                        const stage = typeof leadOrStage === 'string' ? leadOrStage : (leadOrStage?.stage ?? null);
+                        return stage === 'Ganho' || stage === 'Perdido';
+                    },
+
                     badgeStyle(variant) {
                         const map = {
                             success: { bg: 'var(--status-success-light)', fg: 'var(--status-success)' },
@@ -72,6 +77,12 @@
                     },
 
                     startDrag(leadId, fromStage, fromIndex) {
+                        const fromCol = this.columns.find(c => c.stage === fromStage);
+                        const lead = fromCol?.leads?.find(t => t.id === leadId);
+                        if (lead && this.isLocked(lead)) {
+                            return;
+                        }
+
                         this.dragged = { leadId, fromStage, fromIndex };
                     },
 
@@ -156,6 +167,7 @@
                         }
                     },
                 }"
+                x-on:leads-updated.window="columns = $event.detail.columns"
                 class="mt-2"
             >
                 <div
@@ -189,7 +201,7 @@
                                     <div
                                         class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-sm) transition-opacity"
                                         :class="isDragging(lead.id) ? 'opacity-50' : ''"
-                                        draggable="true"
+                                        :draggable="!isLocked(lead)"
                                         x-on:dragstart="startDrag(lead.id, column.stage, index)"
                                         x-on:dragend="clearDrag()"
                                         x-on:dragover.prevent
@@ -245,6 +257,7 @@
                                                     size="icon"
                                                     variant="ghost"
                                                     icon="solar:pen-linear"
+                                                    x-bind:disabled="isLocked(lead)"
                                                     x-on:click="$dispatch('open-edit-lead-offcanvas'); $wire.edit(lead.id)"
                                                 />
 
@@ -254,7 +267,8 @@
                                                     variant="ghost"
                                                     icon="solar:trash-bin-trash-linear"
                                                     class="hover:text-(--status-error)"
-                                                    x-on:click="$wire.delete(lead.id)"
+                                                    x-bind:disabled="isLocked(lead)"
+                                                    x-on:click="$wire.confirmDelete(lead.id)"
                                                 />
                                             </div>
                                         </div>
@@ -290,11 +304,15 @@
                         </x-ds::table-cell>
                         <x-ds::table-cell>
                             <div class="flex items-center gap-2">
+                                @php
+                                    $isLocked = ($lead['stage'] ?? null) === 'Ganho' || ($lead['stage'] ?? null) === 'Perdido';
+                                @endphp
                                 <x-ds::button
                                     type="button"
                                     size="icon"
                                     variant="ghost"
                                     icon="solar:pen-linear"
+                                    :disabled="$isLocked"
                                     x-on:click="$dispatch('open-edit-lead-offcanvas'); $wire.edit({{ $lead['id'] }})"
                                 />
                                 <x-ds::button
@@ -303,7 +321,8 @@
                                     variant="ghost"
                                     icon="solar:trash-bin-trash-linear"
                                     class="hover:text-(--status-error)"
-                                    wire:click.prevent="delete({{ $lead['id'] }})"
+                                    :disabled="$isLocked"
+                                    wire:click.prevent="confirmDelete({{ $lead['id'] }})"
                                 />
                             </div>
                         </x-ds::table-cell>
@@ -318,6 +337,44 @@
             </x-ds::table>
         </x-ds::card>
     @endif
+
+    <x-ds::modal
+        x-on:open-delete-modal.window="openModal()"
+        x-on:close-delete-modal.window="closeModal()"
+        title="{{ __('app.leads.delete.title') }}"
+        size="md"
+    >
+        <div class="space-y-4">
+            <x-ds::alert variant="danger" icon="solar:danger-triangle-linear">
+                {{ __('app.leads.delete.warning') }}
+            </x-ds::alert>
+
+            <p class="text-sm text-(--text-secondary)">
+                {!! __('app.leads.delete.confirm_help', ['word' => '<span class="select-all font-mono font-bold text-(--status-error)">DELETE</span>']) !!}
+            </p>
+
+            <x-ds::input
+                wire:model.live="deleteConfirmation"
+                placeholder="{{ __('app.leads.delete.placeholder', ['word' => 'DELETE']) }}"
+                class="border-(--status-error) focus:border-(--status-error) focus:ring-(--status-error)/20"
+            />
+            @error('deleteConfirmation') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+        </div>
+
+        <x-slot:footer>
+            <div class="flex justify-end gap-2">
+                <x-ds::button type="button" variant="secondary" @click="open = false">{{ __('app.leads.form.cancel') }}</x-ds::button>
+                <x-ds::button
+                    variant="danger"
+                    icon="solar:trash-bin-trash-linear"
+                    wire:click.prevent="delete"
+                    wire:loading.attr="disabled"
+                >
+                    {{ __('app.leads.delete.delete_permanently') }}
+                </x-ds::button>
+            </div>
+        </x-slot:footer>
+    </x-ds::modal>
 
     <x-ds::offcanvas
         x-data="{ open: false }"

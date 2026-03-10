@@ -99,9 +99,20 @@
                             />
                         </div>
 
-                        <div class="min-w-0">
-                            <div class="text-sm font-semibold text-(--text-primary) truncate">{{ $client->name }}</div>
-                            <div class="mt-1 text-xs text-(--text-muted) truncate">{{ $client->cnpj ?: __('app.common.dash') }}</div>
+                        <div class="flex items-center gap-3 min-w-0">
+                            @if($client->logo_url)
+                                <img
+                                    src="{{ $client->logo_url }}"
+                                    alt="logo"
+                                    class="h-10 w-10 rounded-md border border-(--border-subtle) object-contain bg-(--surface-card) shrink-0"
+                                    loading="lazy"
+                                />
+                            @endif
+
+                            <div class="min-w-0">
+                                <div class="text-sm font-semibold text-(--text-primary) truncate">{{ $client->name }}</div>
+                                <div class="mt-1 text-xs text-(--text-muted) truncate">{{ $client->cnpj ?: __('app.common.dash') }}</div>
+                            </div>
                         </div>
 
                         <div class="mt-4 flex items-center justify-between gap-2">
@@ -123,7 +134,18 @@
                 @forelse($clients as $client)
                     <tr class="border-b border-(--border-subtle) transition-colors hover:bg-(--surface-hover)" wire:key="{{ $client->id }}">
                         <x-ds::table-cell>
-                            <div class="text-sm font-medium text-(--text-primary)">{{ $client->name }}</div>
+                            <div class="flex items-center gap-3 min-w-0">
+                                @if($client->logo_url)
+                                    <img
+                                        src="{{ $client->logo_url }}"
+                                        alt="logo"
+                                        class="h-8 w-8 rounded-md border border-(--border-subtle) object-contain bg-(--surface-card) shrink-0"
+                                        loading="lazy"
+                                    />
+                                @endif
+
+                                <div class="text-sm font-medium text-(--text-primary) truncate">{{ $client->name }}</div>
+                            </div>
                         </x-ds::table-cell>
                         <x-ds::table-cell>
                             <div class="text-sm text-(--text-secondary)">{{ $client->cnpj ?: __('app.common.dash') }}</div>
@@ -200,6 +222,70 @@
             <x-ds::input label="{{ __('app.clients.form.cnpj') }}" wire:model="cnpj" :error="$errors->first('cnpj')" />
             <x-ds::input label="{{ __('app.clients.form.category') }}" wire:model="category" :error="$errors->first('category')" />
 
+            <x-ds::select
+                label="{{ __('app.clients.form.plan') }}"
+                wire:model.live="plan_id"
+                :options="$planOptions"
+                :error="$errors->first('plan_id')"
+            />
+
+            <x-ds::select-search
+                label="{{ __('app.clients.form.services') }}"
+                :multiple="true"
+                :options="$serviceOptions"
+                placeholder="{{ __('app.clients.form.services_placeholder') }}"
+                helper="{{ __('app.clients.form.services_helper') }}"
+                :disabled="(bool) $plan_id"
+                :error="$errors->first('service_ids')"
+                wireModel="service_ids"
+                :wireLive="true"
+            />
+
+            <x-ds::input
+                label="{{ __('app.clients.form.contract_value') }}"
+                wire:model="contract_value"
+                type="number"
+                step="0.01"
+                :error="$errors->first('contract_value')"
+            />
+
+            <x-ds::input label="{{ __('app.clients.form.origin') }}" wire:model="origin" :error="$errors->first('origin')" />
+            <x-ds::input label="{{ __('app.clients.form.campaign') }}" wire:model="campaign" :error="$errors->first('campaign')" />
+
+            <div class="space-y-3">
+                <x-ds::file-upload
+                    label="Logo"
+                    name="logo"
+                    helper="PNG, JPG, SVG, WEBP (max 4MB)"
+                    wire:model="logo"
+                    :error="$errors->first('logo')"
+                />
+
+                @if ($logo)
+                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4">
+                        <div class="text-xs font-medium text-(--text-secondary)">Preview</div>
+                        <img
+                            src="{{ $logo->temporaryUrl() }}"
+                            alt="logo"
+                            class="mt-3 h-10 w-auto"
+                            loading="lazy"
+                        />
+                    </div>
+                @endif
+
+                @if ($current_logo_path)
+                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4">
+                        <div class="text-xs font-medium text-(--text-secondary)">Atual</div>
+                        <img
+                            src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($current_logo_path) }}"
+                            alt="logo"
+                            class="mt-3 h-10 w-auto"
+                            loading="lazy"
+                        />
+                    </div>
+                @endif
+            </div>
+
             <div class="pt-4 flex justify-end gap-2">
                 <x-ds::button type="button" variant="secondary" @click="open = false">{{ __('app.clients.form.cancel') }}</x-ds::button>
                 <x-ds::button type="submit" icon="solar:diskette-linear" wire:loading.attr="disabled" wire:target="save">
@@ -229,6 +315,70 @@
             <x-ds::input label="{{ __('app.clients.form.name') }}" wire:model="name" required :error="$errors->first('name')" />
             <x-ds::input label="{{ __('app.clients.form.cnpj') }}" wire:model="cnpj" :error="$errors->first('cnpj')" />
             <x-ds::input label="{{ __('app.clients.form.category') }}" wire:model="category" :error="$errors->first('category')" />
+
+            <x-ds::select
+                label="{{ __('app.clients.form.plan') }}"
+                wire:model.live="plan_id"
+                :options="$planOptions"
+                :error="$errors->first('plan_id')"
+            />
+
+            <x-ds::select-search
+                label="{{ __('app.clients.form.services') }}"
+                :multiple="true"
+                :options="$serviceOptions"
+                placeholder="{{ __('app.clients.form.services_placeholder') }}"
+                helper="{{ __('app.clients.form.services_helper') }}"
+                :disabled="(bool) $plan_id"
+                :error="$errors->first('service_ids')"
+                wireModel="service_ids"
+                :wireLive="true"
+            />
+
+            <x-ds::input
+                label="{{ __('app.clients.form.contract_value') }}"
+                wire:model="contract_value"
+                type="number"
+                step="0.01"
+                :error="$errors->first('contract_value')"
+            />
+
+            <x-ds::input label="{{ __('app.clients.form.origin') }}" wire:model="origin" :error="$errors->first('origin')" />
+            <x-ds::input label="{{ __('app.clients.form.campaign') }}" wire:model="campaign" :error="$errors->first('campaign')" />
+
+            <div class="space-y-3">
+                <x-ds::file-upload
+                    label="Logo"
+                    name="logo"
+                    helper="PNG, JPG, SVG, WEBP (max 4MB)"
+                    wire:model="logo"
+                    :error="$errors->first('logo')"
+                />
+
+                @if ($logo)
+                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4">
+                        <div class="text-xs font-medium text-(--text-secondary)">Preview</div>
+                        <img
+                            src="{{ $logo->temporaryUrl() }}"
+                            alt="logo"
+                            class="mt-3 h-10 w-auto"
+                            loading="lazy"
+                        />
+                    </div>
+                @endif
+
+                @if ($current_logo_path)
+                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4">
+                        <div class="text-xs font-medium text-(--text-secondary)">Atual</div>
+                        <img
+                            src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($current_logo_path) }}"
+                            alt="logo"
+                            class="mt-3 h-10 w-auto"
+                            loading="lazy"
+                        />
+                    </div>
+                @endif
+            </div>
 
             <div class="pt-4 flex justify-end gap-2">
                 <x-ds::button type="button" variant="secondary" @click="open = false">{{ __('app.clients.form.cancel') }}</x-ds::button>

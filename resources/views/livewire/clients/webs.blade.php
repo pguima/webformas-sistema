@@ -1,4 +1,19 @@
 <div class="space-y-6">
+    @php
+        $scoreVariantInt = function ($score) {
+            if ($score === null || $score === '') return 'secondary';
+            $pct = (int) $score;
+            if ($pct >= 90) return 'success';
+            if ($pct >= 50) return 'warning';
+            return 'danger';
+        };
+
+        $scoreLabelInt = function ($score) {
+            if ($score === null || $score === '') return __('app.common.dash');
+            return (string) (int) $score;
+        };
+    @endphp
+
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h2 class="text-lg font-semibold text-(--text-primary)">{{ __('app.webs.client_tab.title') }}</h2>
@@ -74,6 +89,27 @@
                                 type="button"
                                 size="icon"
                                 variant="ghost"
+                                icon="solar:shield-check-linear"
+                                title="Auditoria"
+                                wire:click="audit({{ $web->id }})"
+                                wire:loading.attr="disabled"
+                                wire:loading.class="opacity-60 cursor-wait"
+                                wire:target="audit({{ $web->id }})"
+                                class="relative"
+                            >
+                                <span
+                                    wire:loading
+                                    wire:target="audit({{ $web->id }})"
+                                    class="absolute inset-0 flex items-center justify-center"
+                                >
+                                    <x-ds::spinner size="sm" variant="secondary" />
+                                </span>
+                            </x-ds::button>
+
+                            <x-ds::button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
                                 icon="solar:pen-linear"
                                 wire:mouseenter="prefetch({{ $web->id }})"
                                 x-on:click="$dispatch('open-edit-client-web-offcanvas'); $wire.edit({{ $web->id }})"
@@ -103,7 +139,26 @@
                             @if($web->type)
                                 <x-ds::badge variant="secondary">{{ $web->type }}</x-ds::badge>
                             @endif
+                            @if($web->platform)
+                                <x-ds::badge variant="secondary">{{ $web->platform }}</x-ds::badge>
+                            @endif
+                            @if($web->responsible)
+                                <x-ds::badge variant="secondary">{{ $web->responsible }}</x-ds::badge>
+                            @endif
                         </div>
+
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <x-ds::badge :variant="$scoreVariantInt($web->performance)" style="soft">P {{ $scoreLabelInt($web->performance) }}</x-ds::badge>
+                            <x-ds::badge :variant="$scoreVariantInt($web->seo)" style="soft">S {{ $scoreLabelInt($web->seo) }}</x-ds::badge>
+                            <x-ds::badge :variant="$scoreVariantInt($web->accessibility)" style="soft">A {{ $scoreLabelInt($web->accessibility) }}</x-ds::badge>
+                            <x-ds::badge :variant="$scoreVariantInt($web->best_practices)" style="soft">B {{ $scoreLabelInt($web->best_practices) }}</x-ds::badge>
+                        </div>
+
+                        @if($web->pagespeed_last_checked_at)
+                            <div class="mt-2 text-[11px] text-(--text-muted)">
+                                {{ $web->pagespeed_last_checked_at->format('d/m/Y H:i') }}
+                            </div>
+                        @endif
                     </x-ds::card>
                 @empty
                     <div class="py-8 text-center text-sm text-(--text-secondary) sm:col-span-2 xl:col-span-3">
@@ -116,7 +171,7 @@
                 {{ $webs->links() }}
             </div>
         @else
-            <x-ds::table :headers="[__('app.webs.table.name'), __('app.webs.table.url'), __('app.webs.table.status'), __('app.webs.table.actions')]">
+            <x-ds::table :headers="[__('app.webs.table.name'), __('app.webs.table.url'), __('app.webs.table.platform'), __('app.webs.table.responsible'), __('app.webs.table.pagespeed'), __('app.webs.table.status'), __('app.webs.table.actions')]">
                 @forelse($webs as $web)
                     <tr class="border-b border-(--border-subtle) transition-colors hover:bg-(--surface-hover)" wire:key="{{ $web->id }}">
                         <x-ds::table-cell>
@@ -127,10 +182,51 @@
                             <div class="text-sm text-(--text-secondary)">{{ $web->url }}</div>
                         </x-ds::table-cell>
                         <x-ds::table-cell>
+                            <div class="text-sm text-(--text-secondary)">{{ $web->platform ?: __('app.common.dash') }}</div>
+                        </x-ds::table-cell>
+                        <x-ds::table-cell>
+                            <div class="text-sm text-(--text-secondary)">{{ $web->responsible ?: __('app.common.dash') }}</div>
+                        </x-ds::table-cell>
+                        <x-ds::table-cell>
+                            <div class="flex flex-wrap gap-2">
+                                <x-ds::badge :variant="$scoreVariantInt($web->performance)" style="soft">P {{ $scoreLabelInt($web->performance) }}</x-ds::badge>
+                                <x-ds::badge :variant="$scoreVariantInt($web->seo)" style="soft">S {{ $scoreLabelInt($web->seo) }}</x-ds::badge>
+                                <x-ds::badge :variant="$scoreVariantInt($web->accessibility)" style="soft">A {{ $scoreLabelInt($web->accessibility) }}</x-ds::badge>
+                                <x-ds::badge :variant="$scoreVariantInt($web->best_practices)" style="soft">B {{ $scoreLabelInt($web->best_practices) }}</x-ds::badge>
+                            </div>
+
+                            @if($web->pagespeed_last_checked_at)
+                                <div class="mt-1 text-[11px] text-(--text-muted)">
+                                    {{ $web->pagespeed_last_checked_at->format('d/m/Y H:i') }}
+                                </div>
+                            @endif
+                        </x-ds::table-cell>
+                        <x-ds::table-cell>
                             <x-ds::badge variant="secondary">{{ $web->status ?: __('app.common.dash') }}</x-ds::badge>
                         </x-ds::table-cell>
                         <x-ds::table-cell>
                             <div class="flex items-center gap-2">
+                                <x-ds::button
+                                    type="button"
+                                    size="icon"
+                                    variant="ghost"
+                                    icon="solar:shield-check-linear"
+                                    title="Auditoria"
+                                    wire:click="audit({{ $web->id }})"
+                                    wire:loading.attr="disabled"
+                                    wire:loading.class="opacity-60 cursor-wait"
+                                    wire:target="audit({{ $web->id }})"
+                                    class="relative"
+                                >
+                                    <span
+                                        wire:loading
+                                        wire:target="audit({{ $web->id }})"
+                                        class="absolute inset-0 flex items-center justify-center"
+                                    >
+                                        <x-ds::spinner size="sm" variant="secondary" />
+                                    </span>
+                                </x-ds::button>
+
                                 <x-ds::button
                                     type="button"
                                     size="icon"
@@ -155,7 +251,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="py-8 text-center text-sm text-(--text-secondary)">
+                        <td colspan="7" class="py-8 text-center text-sm text-(--text-secondary)">
                             {{ __('app.webs.no_results', ['search' => $search]) }}
                         </td>
                     </tr>
@@ -227,12 +323,6 @@
                 <x-ds::input label="{{ __('app.webs.form.priority') }}" wire:model="priority" type="number" :error="$errors->first('priority')" />
             </div>
 
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <x-ds::input label="{{ __('app.webs.form.pagespeed_mobile') }}" wire:model="pagespeed_mobile" type="number" :error="$errors->first('pagespeed_mobile')" />
-                <x-ds::input label="{{ __('app.webs.form.pagespeed_desktop') }}" wire:model="pagespeed_desktop" type="number" :error="$errors->first('pagespeed_desktop')" />
-                <x-ds::input label="{{ __('app.webs.form.seo_score') }}" wire:model="seo_score" type="number" :error="$errors->first('seo_score')" />
-            </div>
-
             <x-ds::textarea label="{{ __('app.webs.form.notes') }}" wire:model="notes" :error="$errors->first('notes')" rows="4" />
 
             <div class="pt-4 flex justify-end gap-2">
@@ -243,6 +333,22 @@
                 </x-ds::button>
             </div>
         </form>
+    </x-ds::offcanvas>
+
+    <x-ds::offcanvas
+        x-data="{ open: false }"
+        x-on:open-client-web-audit-offcanvas.window="open = true"
+        x-on:close-client-web-audit-offcanvas.window="open = false"
+        title="Auditoria"
+        description="Auditoria técnica do WordPress."
+        position="right"
+        size="full"
+    >
+        @if($auditWebId)
+            <livewire:clients.web-audit :webId="$auditWebId" :key="'client-web-audit-' . $client->id . '-' . $auditWebId" />
+        @else
+            <div class="text-sm text-(--text-secondary)">{{ __('app.common.dash') }}</div>
+        @endif
     </x-ds::offcanvas>
 
     <x-ds::modal

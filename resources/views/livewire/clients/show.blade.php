@@ -1,8 +1,20 @@
 <div class="space-y-6">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl font-semibold text-(--text-primary)">{{ __('app.clients.profile.title') }}</h1>
-            <p class="mt-1 text-sm text-(--text-secondary)">{{ __('app.clients.profile.subtitle', ['name' => $client->name]) }}</p>
+            <div class="flex items-center gap-3">
+                @if ($client->logo_url)
+                    <img
+                        src="{{ $client->logo_url }}"
+                        alt="logo"
+                        class="h-10 w-10 rounded-lg object-contain border border-(--border-subtle) bg-(--surface-card)"
+                        loading="lazy"
+                    />
+                @endif
+
+                <h1 class="text-2xl font-semibold text-(--text-primary)">{{ $client->name }}</h1>
+            </div>
+
+            <p class="mt-1 text-sm text-(--text-secondary)">{{ __('app.clients.profile.subtitle') }}</p>
         </div>
 
         <div class="flex gap-2">
@@ -92,16 +104,73 @@
 
                     <div class="space-y-6 lg:col-span-2">
                         <x-ds::card title="{{ __('app.clients.profile.cards.contracted_services.title') }}" description="{{ __('app.clients.profile.cards.contracted_services.description') }}">
-                            <div class="text-sm text-(--text-secondary)">
-                                {{ __('app.clients.profile.cards.contracted_services.empty') }}
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div>
+                                    <div class="text-xs font-medium text-(--text-muted)">{{ __('app.clients.form.plan') }}</div>
+                                    <div class="mt-1 text-sm font-semibold text-(--text-primary)">
+                                        {{ $plan?->name ?: __('app.common.dash') }}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="text-xs font-medium text-(--text-muted)">{{ __('app.clients.form.services') }}</div>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        @if (($services?->count() ?? 0) > 0)
+                                            @foreach ($services as $service)
+                                                <x-ds::badge variant="secondary">{{ $service->name }}</x-ds::badge>
+                                            @endforeach
+                                        @else
+                                            <span class="text-sm text-(--text-secondary)">{{ __('app.common.dash') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="text-xs font-medium text-(--text-muted)">{{ __('app.clients.form.contract_value') }}</div>
+                                    <div class="mt-1 text-sm font-semibold text-(--text-primary)">
+                                        @if (!is_null($client->contract_value) && $client->contract_value !== '')
+                                            R$ {{ number_format((float) $client->contract_value, 2, ',', '.') }}
+                                        @else
+                                            {{ __('app.common.dash') }}
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </x-ds::card>
 
-                        <livewire:clients.campaign-profile :client="$client" :key="'client-campaign-profile-' . $client->id" />
+                        <x-ds::card title="{{ __('app.clients.profile.cards.campaign.title') }}" description="{{ __('app.clients.profile.cards.campaign.description') }}">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex flex-col gap-2">
+                                    <div>
+                                        @if ($googleAdsActive)
+                                            <x-ds::badge variant="success" style="soft" dot>Google ADS ativo</x-ds::badge>
+                                        @else
+                                            <x-ds::badge variant="warning" style="soft" dot>Google ADS pendente</x-ds::badge>
+                                        @endif
+                                    </div>
 
-                        <x-ds::card title="{{ __('app.clients.profile.cards.timeline.title') }}" description="{{ __('app.clients.profile.cards.timeline.description') }}">
-                            <div class="text-sm text-(--text-secondary)">
-                                {{ __('app.clients.profile.cards.timeline.empty') }}
+                                    <div class="text-sm text-(--text-secondary)">
+                                        {{ __('app.clients.profile.cards.campaign.description') }}
+                                    </div>
+                                </div>
+
+                                <x-ds::modal size="lg">
+                                    <x-slot:trigger>
+                                        <x-ds::button variant="secondary" icon="solar:pen-linear">
+                                            {{ __('app.common.edit') }}
+                                        </x-ds::button>
+                                    </x-slot:trigger>
+
+                                    <x-slot:title>
+                                        {{ __('app.campaigns.profile_card.title') }}
+                                    </x-slot:title>
+
+                                    <x-slot:description>
+                                        {{ __('app.campaigns.profile_card.description') }}
+                                    </x-slot:description>
+
+                                    <livewire:clients.campaign-profile :client="$client" :key="'client-campaign-profile-' . $client->id" />
+                                </x-ds::modal>
                             </div>
                         </x-ds::card>
                     </div>

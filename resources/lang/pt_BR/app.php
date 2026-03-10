@@ -3,6 +3,7 @@
 return [
     'common' => [
         'dash' => '—',
+        'edit' => 'Editar',
     ],
 
     'sidebar' => [
@@ -35,8 +36,8 @@ return [
         'no_results' => 'Nenhum cliente encontrado para ":search".',
 
         'profile' => [
-            'title' => 'Perfil do cliente',
-            'subtitle' => 'Detalhes de :name',
+            'title' => '',
+            'subtitle' => 'Perfil do cliente',
             'back' => 'Voltar',
             'tabs' => [
                 'profile' => 'Perfil',
@@ -91,6 +92,13 @@ return [
             'name' => 'Nome',
             'cnpj' => 'CNPJ',
             'category' => 'Categoria',
+            'plan' => 'Plano',
+            'services' => 'Serviços',
+            'services_placeholder' => 'Selecione serviços...',
+            'services_helper' => 'Você pode selecionar vários serviços.',
+            'contract_value' => 'Valor do Contrato',
+            'origin' => 'Origem',
+            'campaign' => 'Campanha',
             'cancel' => 'Cancelar',
             'save' => 'Salvar',
         ],
@@ -130,6 +138,9 @@ return [
             'name' => 'Nome',
             'client' => 'Cliente',
             'url' => 'URL',
+            'platform' => 'Plataforma',
+            'responsible' => 'Responsável',
+            'pagespeed' => 'PageSpeed',
             'status' => 'Status',
             'actions' => 'Ações',
         ],
@@ -465,6 +476,14 @@ return [
             'edit_description' => 'Atualize os dados do lead.',
         ],
 
+        'delete' => [
+            'title' => 'Excluir lead',
+            'warning' => 'Atenção: esta ação não pode ser desfeita.',
+            'confirm_help' => 'Para confirmar a exclusão, digite :word abaixo:',
+            'placeholder' => 'Digite :word',
+            'delete_permanently' => 'Excluir definitivamente',
+        ],
+
         'form' => [
             'name' => 'Nome',
             'whatsapp' => 'Whatsapp',
@@ -495,6 +514,7 @@ return [
             'updated_success' => 'Lead atualizado com sucesso!',
             'deleted_success' => 'Lead excluído com sucesso!',
             'error_not_found' => 'Lead não encontrado.',
+            'locked' => 'Este lead está em "Ganho" ou "Perdido" e não pode mais ser alterado, movido ou excluído.',
         ],
     ],
 

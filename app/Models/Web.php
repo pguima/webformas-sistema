@@ -33,6 +33,11 @@ class Web extends Model
         'pagespeed_mobile',
         'pagespeed_desktop',
         'seo_score',
+        'performance',
+        'seo',
+        'accessibility',
+        'best_practices',
+        'pagespeed_last_checked_at',
         'priority',
         'notes',
     ];
@@ -45,6 +50,11 @@ class Web extends Model
         'pagespeed_mobile' => 'integer',
         'pagespeed_desktop' => 'integer',
         'seo_score' => 'integer',
+        'performance' => 'integer',
+        'seo' => 'integer',
+        'accessibility' => 'integer',
+        'best_practices' => 'integer',
+        'pagespeed_last_checked_at' => 'datetime',
         'priority' => 'integer',
     ];
 
