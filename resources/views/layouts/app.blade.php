@@ -16,6 +16,9 @@
         <link rel="icon" href="{{ asset('storage/' . $faviconPath) }}">
     @endif
 
+    <!-- Load ApexCharts before the Vite bundle so window.ApexCharts is available when Alpine initialises -->
+    <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
@@ -32,9 +35,8 @@
     </script>
 
     <!-- Dependencies -->
-
     <script defer src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
 </head>
 
 <body class="min-h-screen bg-(--surface-page) text-(--text-primary) antialiased">
@@ -100,7 +102,7 @@
             <div class="min-w-0 flex-1">
                 <main class="p-6">
                     @if(isset($slot) && $slot->isNotEmpty())
-                        {{ $slot }}
+                        {!! $slot !!}
                     @else
                         @yield('content')
                     @endif

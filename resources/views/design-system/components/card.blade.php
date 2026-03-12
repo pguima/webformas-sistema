@@ -49,13 +49,13 @@
 <div {{ $attributes->class($containerClass) }}>
     @isset($media)
         <div class="overflow-hidden">
-            {{ $media }}
+            {!! $media !!}
         </div>
     @endisset
 
     @isset($header)
         <div class="border-b border-(--border-subtle) bg-(--surface-card) px-6 py-4">
-            {{ $header }}
+            {!! $header !!}
         </div>
     @endisset
 
@@ -74,16 +74,16 @@
 
         @if ($title || $description)
             <div class="mt-4">
-                {{ $slot }}
+                {!! $slot !!}
             </div>
         @else
-            {{ $slot }}
+            {!! $slot !!}
         @endif
     </div>
 
     @isset($footer)
         <div class="border-t border-(--border-subtle) bg-(--surface-card) px-6 py-4">
-            {{ $footer }}
+            {!! $footer !!}
         </div>
     @endisset
 </div>

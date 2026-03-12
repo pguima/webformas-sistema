@@ -36,6 +36,7 @@
                 ['url' => '/design-system/forms', 'icon' => 'solar:checklist-minimalistic-linear', 'label' => 'ds.sidebar.items.forms'],
                 ['url' => '/design-system/forms-advanced', 'icon' => 'solar:checklist-linear', 'label' => 'ds.sidebar.items.forms_advanced'],
                 ['url' => '/design-system/links', 'icon' => 'solar:link-circle-linear', 'label' => 'ds.sidebar.items.links'],
+                ['url' => '/design-system/charts', 'icon' => 'uis:chart', 'label' => 'ds.sidebar.items.charts'],
                 ['url' => '/design-system/kanban', 'icon' => 'solar:notes-minimalistic-linear', 'label' => 'ds.sidebar.items.kanban'],
             ]
         ]

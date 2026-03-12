@@ -244,6 +244,7 @@ return [
             'interactions' => 'Interacciones',
             'ctr' => 'CTR',
             'conversions' => 'Conversiones',
+            'conversions_rate' => 'Tasa de conversión',
             'cost' => 'Costo',
         ],
 
@@ -285,9 +286,30 @@ return [
             'refresh' => 'Actualizar',
             'loading' => 'Cargando...',
             'table_title' => 'Campañas',
+            'top_title' => 'Top campañas',
+            'top_subtitle' => 'Clics vs impresiones',
+            'status_title' => 'Estado',
+            'status_subtitle' => 'Distribución',
+            'cost_title' => 'Mayores Gastos',
+            'cost_subtitle' => 'Top campañas por costo',
+            'channel_title' => 'Tipos de Canal',
+            'channel_subtitle' => 'Distribución por tipo de canal',
+            'conversions_title' => 'Conversiones y Tasa',
+            'conversions_subtitle' => 'Top campañas por conversiones',
+            'total_of' => ':total total',
             'empty' => 'Sin datos para el período seleccionado.',
             'missing_ids' => 'Completa los IDs (Manager/Client Customer ID) en el perfil del cliente para cargar el dashboard.',
             'error' => 'Error al cargar datos de la integración.',
+            'series' => [
+                'clicks' => 'Clics',
+                'impressions_100' => 'Impresiones / 100',
+                'cost' => 'Costo (R$)',
+            ],
+            'status' => [
+                'active' => 'Activas',
+                'paused' => 'Pausadas',
+                'removed' => 'Eliminadas',
+            ],
         ],
 
         'periods' => [
@@ -309,8 +331,11 @@ return [
             'impressions' => 'Impresiones',
             'interactions' => 'Interacciones',
             'video_views' => 'Vistas de video',
-            'cpc' => 'CPC prom.:',
-            'cpa' => 'CPA:',
+            'cpc' => 'CPC prom.',
+            'cpa' => 'CPA',
+            'avg_cpm' => 'CPM prom.',
+            'budget' => 'Presupuesto/día',
+            'optimization' => 'Score de Opt.',
         ],
 
         'messages' => [

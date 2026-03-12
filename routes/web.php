@@ -164,6 +164,7 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin,Admin'])->group(function
             Route::view('/forms', 'design-system.pages.forms');
             Route::view('/forms-advanced', 'design-system.pages.forms-advanced');
             Route::view('/links', 'design-system.pages.links');
+            Route::view('/charts', 'design-system.pages.charts');
             Route::view('/kanban', 'design-system.pages.kanban');
         });
 });

@@ -58,7 +58,7 @@
             <button
                 type="button"
                 role="tab"
-                x-on:click="active = 'campaign'"
+                x-on:click="active = 'campaign'; $nextTick(() => { window.dispatchEvent(new CustomEvent('campaign-tab-activated')); window.dispatchEvent(new CustomEvent('ds-chart-rerender')); setTimeout(() => window.dispatchEvent(new CustomEvent('ds-chart-rerender')), 50); })"
                 x-bind:aria-selected="active === 'campaign' ? 'true' : 'false'"
                 class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-(--color-primary)/20"
                 x-bind:class="active === 'campaign' ? 'border-b-2 border-(--color-primary) text-(--color-primary)' : 'border-b-2 border-transparent text-(--text-secondary) hover:text-(--text-primary)'"

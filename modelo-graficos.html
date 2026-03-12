@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR" x-data="dashboard()" x-init="init()">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Google Ads Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    :root {
+      --bg:        #080c14;
+      --surface:   #0e1523;
+      --card:      #131d2e;
+      --border:    #1c2d45;
+      --accent:    #00e5ff;
+      --accent2:   #ff6b35;
+      --accent3:   #7c3aed;
+      --green:     #22d3a0;
+      --text:      #e2eaf4;
+      --muted:     #5a7a99;
+      --font-main: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── GRID NOISE BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .page-wrap { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 0 24px 60px; }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      display: grid; place-items: center;
+      font-size: 18px; font-weight: 800;
+    }
+    .logo-text { font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
+    .logo-text span { color: var(--accent); }
+    .header-badge {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--muted); border: 1px solid var(--border);
+      padding: 4px 12px; border-radius: 20px;
+    }
+
+    /* ── FORM PANEL ── */
+    .form-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .form-panel::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent3), var(--accent), var(--green));
+    }
+    .form-panel h2 {
+      font-size: 14px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+    @media (max-width: 900px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+    .field label {
+      display: block; font-family: var(--font-mono);
+      font-size: 11px; font-weight: 500;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,229,255,.1);
+    }
+    .field select option { background: var(--surface); }
+    .btn-fetch {
+      height: 46px;
+      padding: 0 28px;
+      background: linear-gradient(135deg, var(--accent3), var(--accent));
+      color: #fff;
+      font-family: var(--font-main);
+      font-size: 14px; font-weight: 700;
+      border: none; border-radius: 10px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: opacity .2s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn-fetch:hover { opacity: .9; }
+    .btn-fetch:active { transform: scale(.97); }
+    .btn-fetch:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── LOADER ── */
+    .loader-wrap {
+      display: flex; align-items: center; justify-content: center;
+      padding: 80px 0; gap: 14px; color: var(--muted);
+      font-family: var(--font-mono); font-size: 13px;
+    }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR ── */
+    .error-box {
+      background: rgba(255,107,53,.08);
+      border: 1px solid rgba(255,107,53,.3);
+      border-radius: 12px;
+      padding: 18px 22px;
+      color: var(--accent2);
+      font-family: var(--font-mono); font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 20px 18px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+    .kpi-card .accent-dot {
+      position: absolute; top: 0; left: 20px;
+      width: 40px; height: 3px; border-radius: 0 0 4px 4px;
+    }
+    .kpi-label {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+    .kpi-value {
+      font-size: 26px; font-weight: 800; letter-spacing: -1px;
+      line-height: 1; margin-bottom: 6px;
+    }
+    .kpi-sub {
+      font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+    }
+
+    /* ── CHARTS ROW ── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
+    .charts-row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 900px) { .charts-row2 { grid-template-columns: 1fr; } }
+
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 20px 10px;
+      overflow: hidden;
+    }
+    .chart-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .chart-title .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    /* ── TABLE ── */
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .table-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table thead th {
+      background: var(--surface);
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); font-weight: 500;
+      padding: 12px 18px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .data-table tbody td {
+      padding: 14px 18px;
+      font-family: var(--font-mono); font-size: 12px;
+      border-bottom: 1px solid rgba(28,45,69,.5);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: rgba(0,229,255,.03); }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    }
+    .badge-enabled { background: rgba(34,211,160,.12); color: var(--green); }
+    .badge-paused  { background: rgba(255,107,53,.12); color: var(--accent2); }
+    .badge-search  { background: rgba(0,229,255,.1); color: var(--accent); }
+    .badge-pmax    { background: rgba(124,58,237,.15); color: #a78bfa; }
+    .campaign-name {
+      max-width: 200px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── PERFORMANCE BAR ── */
+    .perf-bar { display: flex; align-items: center; gap: 8px; }
+    .bar-track {
+      flex: 1; height: 4px;
+      background: var(--border);
+      border-radius: 2px; overflow: hidden;
+    }
+    .bar-fill { height: 100%; border-radius: 2px; transition: width .6s ease; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center; padding: 80px 20px;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .4; }
+    .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .empty-sub { font-family: var(--font-mono); font-size: 13px; }
+
+    /* ── SECTION DIVIDER ── */
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── TOOLTIP OVERRIDES ── */
+    .apexcharts-tooltip {
+      background: var(--card) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      font-family: var(--font-mono) !important;
+    }
+    .apexcharts-tooltip-title {
+      background: var(--surface) !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+
+    /* Fade in animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp .5s ease both; }
+    .fade-up:nth-child(1) { animation-delay: .05s; }
+    .fade-up:nth-child(2) { animation-delay: .1s; }
+    .fade-up:nth-child(3) { animation-delay: .15s; }
+    .fade-up:nth-child(4) { animation-delay: .2s; }
+    .fade-up:nth-child(5) { animation-delay: .25s; }
+    .fade-up:nth-child(6) { animation-delay: .3s; }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">G</div>
+      <div>
+        <div class="logo-text">Ads<span>Vision</span></div>
+      </div>
+    </div>
+    <div class="header-badge">Google Ads · Analytics Dashboard</div>
+  </header>
+
+  <!-- FORM -->
+  <div class="form-panel">
+    <h2>⚙ Configurar Consulta</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Manager Customer ID</label>
+        <input type="text" x-model="form.managerCustomerId" placeholder="ex: 2380899609" />
+      </div>
+      <div class="field">
+        <label>Client Customer ID</label>
+        <input type="text" x-model="form.clientCustomerId" placeholder="ex: 7258665411" />
+      </div>
+      <div class="field">
+        <label>Período</label>
+        <select x-model="form.periodo">
+          <option value="All Time">All Time</option>
+          <option value="Today">Today</option>
+          <option value="Last 7 Days">Last 7 Days</option>
+          <option value="Last 14 Days">Last 14 Days</option>
+          <option value="Last 30 Days" selected>Last 30 Days</option>
+        </select>
+      </div>
+      <div>
+        <button class="btn-fetch" @click="fetchData()" :disabled="loading">
+          <template x-if="loading">
+            <span class="spinner" style="width:16px;height:16px;border-width:2px;"></span>
+          </template>
+          <template x-if="!loading">
+            <span>▶</span>
+          </template>
+          <span x-text="loading ? 'Carregando...' : 'Consultar'"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-box" x-show="error" x-text="error" x-cloak></div>
+
+  <!-- LOADING -->
+  <div class="loader-wrap" x-show="loading">
+    <div class="spinner"></div>
+    <span>Consultando campanhas...</span>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" x-show="!loading && !error && campaigns.length === 0">
+    <div class="empty-icon">📊</div>
+    <div class="empty-title">Nenhum dado carregado</div>
+    <div class="empty-sub">Preencha os campos acima e clique em Consultar</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div x-show="!loading && campaigns.length > 0" x-cloak>
+
+    <!-- KPI CARDS -->
+    <div class="section-label">Visão Geral</div>
+    <div class="kpi-grid">
+      <div class="kpi-card fade-up">
+        <div class="accent-dot" style="background: linear-gradient(90deg,#00e5ff,#7c3aed);"></div>
+        <div class="kpi-label">Campanhas</div>
+        <div class="kpi-value" x-text="totals.count"></div>
+        <div class="kpi-sub" x-text="totals.enabledCount + ' ativas · ' + totals.pausedCount + ' pausadas'"></div>
+      </div>
+      <div class="kpi-card fade-up">
+        <div class="accent-dot" style="background: linear-gradient(90deg,#22d3a0,#00e5ff);"></div>
+        <div class="kpi-label">Impressões</div>
+        <div class="kpi-value" x-text="fmtNum(totals.impressions)"></div>
+        <div class="kpi-sub">Total do período</div>
+      </div>
+      <div class="kpi-card fade-up">
+        <div class="accent-dot" style="background: linear-gradient(90deg,#ff6b35,#f59e0b);"></div>
+        <div class="kpi-label">Interações</div>
+        <div class="kpi-value" x-text="fmtNum(totals.interactions)"></div>
+        <div class="kpi-sub" x-text="'CTR médio: ' + fmtPct(totals.avgCtr)"></div>
+      </div>
+      <div class="kpi-card fade-up">
+        <div class="accent-dot" style="background: linear-gradient(90deg,#7c3aed,#ec4899);"></div>
+        <div class="kpi-label">Conversões</div>
+        <div class="kpi-value" x-text="fmtNum(totals.conversions)"></div>
+        <div class="kpi-sub" x-text="'Taxa: ' + fmtPct(totals.avgConvRate)"></div>
+      </div>
+      <div class="kpi-card fade-up">
+        <div class="accent-dot" style="background: linear-gradient(90deg,#00e5ff,#22d3a0);"></div>
+        <div class="kpi-label">Custo Total</div>
+        <div class="kpi-value" x-text="'R$ ' + fmtCurrency(totals.costMicros / 1e6)"></div>
+        <div class="kpi-sub">Total investido</div>
+      </div>
+      <div class="kpi-card fade-up">
+        <div class="accent-dot" style="background: linear-gradient(90deg,#f59e0b,#ff6b35);"></div>
+        <div class="kpi-label">Custo / Conv.</div>
+        <div class="kpi-value" x-text="'R$ ' + fmtCurrency(totals.avgCostPerConv / 1e6)"></div>
+        <div class="kpi-sub">Média por conversão</div>
+      </div>
+      <div class="kpi-card fade-up">
+        <div class="accent-dot" style="background: linear-gradient(90deg,#22d3a0,#7c3aed);"></div>
+        <div class="kpi-label">CPM Médio</div>
+        <div class="kpi-value" x-text="'R$ ' + fmtCurrency(totals.avgCpm / 1e6)"></div>
+        <div class="kpi-sub">Por mil impressões</div>
+      </div>
+      <div class="kpi-card fade-up">
+        <div class="accent-dot" style="background: linear-gradient(90deg,#00e5ff,#ff6b35);"></div>
+        <div class="kpi-label">Video Views</div>
+        <div class="kpi-value" x-text="fmtNum(totals.videoViews)"></div>
+        <div class="kpi-sub">Total de visualizações</div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 1 -->
+    <div class="section-label">Performance por Campanha</div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">
+          <span class="dot" style="background:var(--accent);"></span>
+          Impressões vs Interações
+        </div>
+        <div id="chart-bar"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">
+          <span class="dot" style="background:var(--accent3);"></span>
+          Distribuição de Custo
+        </div>
+        <div id="chart-donut"></div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 2 -->
+    <div class="charts-row2">
+      <div class="chart-card">
+        <div class="chart-title">
+          <span class="dot" style="background:var(--green);"></span>
+          CTR por Campanha
+        </div>
+        <div id="chart-ctr"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">
+          <span class="dot" style="background:var(--accent2);"></span>
+          Conversões & Taxa de Conv.
+        </div>
+        <div id="chart-conv"></div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="section-label">Detalhamento de Campanhas</div>
+    <div class="table-card">
+      <div class="table-header">
+        <span>📋</span> Todas as Campanhas
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Campanha</th>
+              <th>Canal</th>
+              <th>Status</th>
+              <th>Impressões</th>
+              <th>Interações</th>
+              <th>CTR</th>
+              <th>Conversões</th>
+              <th>Taxa Conv.</th>
+              <th>Custo</th>
+              <th>Custo/Conv.</th>
+              <th>CPM</th>
+              <th>Vídeo Views</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="c in campaigns" :key="c.id">
+              <tr>
+                <td>
+                  <div class="campaign-name" :title="c.name" x-text="c.name"></div>
+                </td>
+                <td>
+                  <span class="badge" :class="c.advertisingChannelType === 'SEARCH' ? 'badge-search' : 'badge-pmax'"
+                    x-text="c.advertisingChannelType === 'SEARCH' ? 'Search' : 'PMax'"></span>
+                </td>
+                <td>
+                  <span class="badge" :class="c.status === 'ENABLED' ? 'badge-enabled' : 'badge-paused'"
+                    x-text="c.status === 'ENABLED' ? 'Ativa' : 'Pausada'"></span>
+                </td>
+                <td x-text="fmtNum(parseInt(c.impressions))"></td>
+                <td x-text="fmtNum(parseInt(c.interactions))"></td>
+                <td>
+                  <div class="perf-bar">
+                    <span x-text="fmtPct(c.ctr)"></span>
+                    <div class="bar-track">
+                      <div class="bar-fill" :style="'width:'+Math.min(c.ctr*1000,100)+'%;background:var(--accent)'"></div>
+                    </div>
+                  </div>
+                </td>
+                <td x-text="fmtNum(c.conversions)"></td>
+                <td>
+                  <div class="perf-bar">
+                    <span x-text="fmtPct(c.conversionsFromInteractionsRate)"></span>
+                    <div class="bar-track">
+                      <div class="bar-fill" :style="'width:'+Math.min(c.conversionsFromInteractionsRate*500,100)+'%;background:var(--green)'"></div>
+                    </div>
+                  </div>
+                </td>
+                <td x-text="'R$ '+fmtCurrency(parseInt(c.costMicros)/1e6)"></td>
+                <td x-text="'R$ '+fmtCurrency(c.costPerConversion/1e6)"></td>
+                <td x-text="'R$ '+fmtCurrency(c.averageCpm/1e6)"></td>
+                <td x-text="fmtNum(parseInt(c.videoViews))"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- end dashboard -->
+
+</div><!-- end page-wrap -->
+
+<script>
+function dashboard() {
+  return {
+    form: {
+      managerCustomerId: '',
+      clientCustomerId: '',
+      periodo: 'Last 30 Days'
+    },
+    loading: false,
+    error: '',
+    campaigns: [],
+    totals: {},
+    charts: {},
+
+    init() {},
+
+    async fetchData() {
+      if (!this.form.managerCustomerId || !this.form.clientCustomerId) {
+        this.error = 'Preencha o Manager Customer ID e o Client Customer ID.';
+        return;
+      }
+      this.error = '';
+      this.loading = true;
+      this.campaigns = [];
+
+      try {
+        const res = await fetch('https://webhook.linkspatrocinadosgoogle.com.br/webhook/63f27c63-f077-49ad-aa9f-c7c3a8a6e2d2', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            managerCustomerId: this.form.managerCustomerId,
+            clientCustomerId: this.form.clientCustomerId,
+            periodo: this.form.periodo
+          })
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+
+        // Accept array or object
+        this.campaigns = Array.isArray(data) ? data : (data.campaigns || data.data || [data]);
+
+        if (!this.campaigns.length) {
+          this.error = 'Nenhuma campanha retornada para os parâmetros informados.';
+          this.loading = false;
+          return;
+        }
+
+        this.calcTotals();
+        this.loading = false;
+        await this.$nextTick();
+        this.renderCharts();
+
+      } catch (e) {
+        this.error = 'Erro ao consultar: ' + e.message;
+        this.loading = false;
+      }
+    },
+
+    calcTotals() {
+      const c = this.campaigns;
+      const sum = (f, parse = parseInt) => c.reduce((a, x) => a + (parse(x[f]) || 0), 0);
+      const avg = (f) => c.reduce((a, x) => a + (parseFloat(x[f]) || 0), 0) / c.length;
+
+      this.totals = {
+        count:        c.length,
+        enabledCount: c.filter(x => x.status === 'ENABLED').length,
+        pausedCount:  c.filter(x => x.status === 'PAUSED').length,
+        impressions:  sum('impressions'),
+        interactions: sum('interactions'),
+        conversions:  sum('conversions', parseFloat),
+        videoViews:   sum('videoViews'),
+        costMicros:   sum('costMicros'),
+        avgCtr:       avg('ctr'),
+        avgConvRate:  avg('conversionsFromInteractionsRate'),
+        avgCostPerConv: avg('costPerConversion'),
+        avgCpm:       avg('averageCpm'),
+      };
+    },
+
+    renderCharts() {
+      // Destroy existing
+      Object.values(this.charts).forEach(ch => { try { ch.destroy(); } catch(e){} });
+      this.charts = {};
+
+      const names = this.campaigns.map(c => c.name.split('|').pop().trim().slice(0,22));
+      const colors = ['#00e5ff','#7c3aed','#22d3a0','#ff6b35','#f59e0b','#ec4899'];
+
+      // ── BAR: Impressões vs Interações
+      this.charts.bar = new ApexCharts(document.querySelector('#chart-bar'), {
+        chart: { type: 'bar', height: 260, background: 'transparent', toolbar: { show: false },
+          fontFamily: "'DM Mono', monospace" },
+        theme: { mode: 'dark' },
+        series: [
+          { name: 'Impressões', data: this.campaigns.map(c => parseInt(c.impressions)) },
+          { name: 'Interações', data: this.campaigns.map(c => parseInt(c.interactions)) }
+        ],
+        xaxis: { categories: names, labels: { style: { colors: '#5a7a99', fontSize: '11px' } },
+          axisBorder: { color: '#1c2d45' }, axisTicks: { color: '#1c2d45' } },
+        yaxis: { labels: { style: { colors: '#5a7a99', fontSize: '11px' },
+          formatter: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v } },
+        colors: ['#00e5ff', '#7c3aed'],
+        plotOptions: { bar: { borderRadius: 5, columnWidth: '55%', dataLabels: { position: 'top' } } },
+        dataLabels: { enabled: false },
+        grid: { borderColor: '#1c2d45', strokeDashArray: 4 },
+        legend: { labels: { colors: '#5a7a99' } },
+        tooltip: { theme: 'dark' }
+      });
+      this.charts.bar.render();
+
+      // ── DONUT: Distribuição de Custo
+      this.charts.donut = new ApexCharts(document.querySelector('#chart-donut'), {
+        chart: { type: 'donut', height: 260, background: 'transparent',
+          fontFamily: "'DM Mono', monospace" },
+        theme: { mode: 'dark' },
+        series: this.campaigns.map(c => Math.round(parseInt(c.costMicros) / 1e6 * 100) / 100),
+        labels: names,
+        colors: colors,
+        plotOptions: { pie: { donut: { size: '65%',
+          labels: { show: true, total: { show: true, label: 'Total R$',
+            color: '#5a7a99', fontSize: '12px',
+            formatter: w => 'R$ '+this.fmtCurrency(w.globals.seriesTotals.reduce((a,b)=>a+b,0)) } } } } },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom', labels: { colors: '#5a7a99' }, fontSize: '11px' },
+        tooltip: { theme: 'dark', y: { formatter: v => 'R$ '+this.fmtCurrency(v) } }
+      });
+      this.charts.donut.render();
+
+      // ── CTR Radial
+      this.charts.ctr = new ApexCharts(document.querySelector('#chart-ctr'), {
+        chart: { type: 'bar', height: 230, background: 'transparent', toolbar: { show: false },
+          fontFamily: "'DM Mono', monospace" },
+        theme: { mode: 'dark' },
+        series: [{ name: 'CTR (%)', data: this.campaigns.map(c => parseFloat((c.ctr*100).toFixed(4))) }],
+        xaxis: { categories: names, labels: { style: { colors: '#5a7a99', fontSize:'11px' } },
+          axisBorder: { color: '#1c2d45' }, axisTicks: { color: '#1c2d45' } },
+        yaxis: { labels: { style: { colors: '#5a7a99', fontSize:'11px' },
+          formatter: v => v.toFixed(2)+'%' } },
+        colors: ['#22d3a0'],
+        plotOptions: { bar: { borderRadius: 5, horizontal: false, columnWidth: '45%',
+          distributed: true } },
+        dataLabels: { enabled: true, formatter: v => v.toFixed(2)+'%',
+          style: { colors: ['#22d3a0'], fontSize: '10px' } },
+        grid: { borderColor: '#1c2d45', strokeDashArray: 4 },
+        legend: { show: false },
+        tooltip: { theme: 'dark', y: { formatter: v => v.toFixed(4)+'%' } }
+      });
+      this.charts.ctr.render();
+
+      // ── Combo: Conversões + Taxa
+      this.charts.conv = new ApexCharts(document.querySelector('#chart-conv'), {
+        chart: { type: 'line', height: 230, background: 'transparent', toolbar: { show: false },
+          fontFamily: "'DM Mono', monospace" },
+        theme: { mode: 'dark' },
+        series: [
+          { name: 'Conversões', type: 'column',
+            data: this.campaigns.map(c => Math.round(c.conversions)) },
+          { name: 'Taxa Conv. (%)', type: 'line',
+            data: this.campaigns.map(c => parseFloat((c.conversionsFromInteractionsRate*100).toFixed(3))) }
+        ],
+        xaxis: { categories: names, labels: { style: { colors: '#5a7a99', fontSize:'11px' } },
+          axisBorder: { color: '#1c2d45' }, axisTicks: { color: '#1c2d45' } },
+        yaxis: [
+          { labels: { style: { colors: '#5a7a99', fontSize:'11px' },
+            formatter: v => Math.round(v) } },
+          { opposite: true, labels: { style: { colors: '#5a7a99', fontSize:'11px' },
+            formatter: v => v.toFixed(1)+'%' } }
+        ],
+        colors: ['#ff6b35', '#f59e0b'],
+        plotOptions: { bar: { borderRadius: 5, columnWidth: '50%' } },
+        dataLabels: { enabled: false },
+        stroke: { width: [0, 3], curve: 'smooth' },
+        markers: { size: [0, 5] },
+        grid: { borderColor: '#1c2d45', strokeDashArray: 4 },
+        legend: { labels: { colors: '#5a7a99' } },
+        tooltip: { theme: 'dark' }
+      });
+      this.charts.conv.render();
+    },
+
+    fmtNum(n) {
+      if (n == null || isNaN(n)) return '—';
+      if (n >= 1e6) return (n/1e6).toFixed(2)+'M';
+      if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+      return Number(n).toLocaleString('pt-BR');
+    },
+    fmtPct(v) {
+      if (v == null) return '—';
+      return (v * 100).toFixed(2) + '%';
+    },
+    fmtCurrency(v) {
+      if (v == null || isNaN(v)) return '—';
+      return Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+  };
+}
+</script>
+</body>
+</html>

@@ -239,6 +239,7 @@ return [
             'interactions' => 'Interactions',
             'ctr' => 'CTR',
             'conversions' => 'Conversions',
+            'conversions_rate' => 'Conversion rate',
             'cost' => 'Cost',
         ],
 
@@ -280,9 +281,30 @@ return [
             'refresh' => 'Refresh',
             'loading' => 'Loading...',
             'table_title' => 'Campaigns',
+            'top_title' => 'Top campaigns',
+            'top_subtitle' => 'Clicks vs impressions',
+            'status_title' => 'Status',
+            'status_subtitle' => 'Distribution',
+            'cost_title' => 'Top Spenders',
+            'cost_subtitle' => 'Top campaigns by spend',
+            'channel_title' => 'Channel Types',
+            'channel_subtitle' => 'Distribution by channel type',
+            'conversions_title' => 'Conversions & Rate',
+            'conversions_subtitle' => 'Top campaigns by conversions',
+            'total_of' => ':total total',
             'empty' => 'No data for the selected period.',
             'missing_ids' => 'Fill in the IDs (Manager/Client Customer ID) in the client profile to load the dashboard.',
             'error' => 'Failed to load integration data.',
+            'series' => [
+                'clicks' => 'Clicks',
+                'impressions_100' => 'Impressions / 100',
+                'cost' => 'Cost (R$)',
+            ],
+            'status' => [
+                'active' => 'Active',
+                'paused' => 'Paused',
+                'removed' => 'Removed',
+            ],
         ],
 
         'periods' => [
@@ -304,8 +326,11 @@ return [
             'impressions' => 'Impressions',
             'interactions' => 'Interactions',
             'video_views' => 'Video views',
-            'cpc' => 'Avg. CPC:',
-            'cpa' => 'CPA:',
+            'cpc' => 'Avg. CPC',
+            'cpa' => 'CPA',
+            'avg_cpm' => 'Avg CPM',
+            'budget' => 'Daily Budget',
+            'optimization' => 'Opt. Score',
         ],
 
         'messages' => [

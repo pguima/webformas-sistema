@@ -1,0 +1,43 @@
+[
+  {
+    "resourceName": "customers/7258665411/campaignBudgets/14743701341",
+    "status": "PAUSED",
+    "advertisingChannelType": "PERFORMANCE_MAX",
+    "name": "AG | PMAX | 10/07/25",
+    "id": "22782797024",
+    "videoViews": "2294",
+    "conversionsFromInteractionsRate": 0.03585926928281461,
+    "conversions": 1113,
+    "costMicros": "3250179295",
+    "costPerConversion": 2920197.030548068,
+    "ctr": 0.0248458069577184,
+    "averageCost": 104716.13167729879,
+    "averageCpm": 2900622.390141641,
+    "impressions": "1120511",
+    "interactionRate": 0.027699861937990792,
+    "interactions": "31038",
+    "period": "DAILY",
+    "amountMicros": "23000000"
+  },
+  {
+    "resourceName": "customers/7258665411/campaignBudgets/14757969241",
+    "status": "ENABLED",
+    "advertisingChannelType": "SEARCH",
+    "name": "AG | SEARCH | 11/07/25",
+    "id": "22789181473",
+    "optimizationScore": 0.7445564384663683,
+    "videoViews": "0",
+    "conversionsFromInteractionsRate": 0.0974493132766514,
+    "conversions": 149,
+    "costMicros": "4938834045",
+    "costPerConversion": 33146537.2147651,
+    "ctr": 0.07070520231213873,
+    "averageCost": 3230107.2890778286,
+    "averageCpm": 228385389.36416185,
+    "impressions": "21625",
+    "interactionRate": 0.07070520231213873,
+    "interactions": "1529",
+    "period": "DAILY",
+    "amountMicros": "50000000"
+  }
+]
