@@ -48,9 +48,33 @@ class LeadController extends Controller
 
     public function index(Request $request)
     {
-        $leads = Lead::query()
-            ->latest()
-            ->get();
+        $q = Lead::query();
+
+        if ($request->filled('whatsapp')) {
+            $q->where('whatsapp', (string) $request->query('whatsapp'));
+        }
+
+        if ($request->filled('external_id')) {
+            $q->where('external_id', (string) $request->query('external_id'));
+        }
+
+        if ($request->filled('stage')) {
+            $q->where('stage', (string) $request->query('stage'));
+        }
+
+        if ($request->filled('campaign')) {
+            $q->where('campaign', (string) $request->query('campaign'));
+        }
+
+        if ($request->filled('origin')) {
+            $q->where('origin', (string) $request->query('origin'));
+        }
+
+        if ($request->filled('name')) {
+            $q->where('name', 'like', '%' . (string) $request->query('name') . '%');
+        }
+
+        $leads = $q->latest()->get();
 
         return response()->json(['data' => $leads]);
     }

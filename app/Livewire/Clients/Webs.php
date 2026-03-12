@@ -60,8 +60,6 @@ class Webs extends Component
     // Form
     public ?int $webId = null;
 
-    public ?string $name = null;
-
     public ?string $url = null;
 
     public ?string $type = null;
@@ -105,8 +103,7 @@ class Webs extends Component
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'min:2', 'max:255'],
-            'url' => ['nullable', 'string', 'max:255'],
+            'url' => ['required', 'string', 'max:255'],
 
             'type' => ['nullable', 'string', 'max:50'],
             'objective' => ['nullable', 'string', 'max:50'],
@@ -134,8 +131,8 @@ class Webs extends Component
     {
         $this->reset([
             'webId',
-            'name',
             'url',
+
             'type',
             'objective',
             'cta_main',
@@ -164,7 +161,6 @@ class Webs extends Component
             ->where('client_id', $this->client->id)
             ->select([
                 'id',
-                'name',
                 'url',
                 'type',
                 'objective',
@@ -189,8 +185,8 @@ class Webs extends Component
         }
 
         $this->prefetchedWebs[$id] = [
-            'name' => $web->name,
             'url' => $web->url,
+
             'type' => $web->type,
             'objective' => $web->objective,
             'cta_main' => $web->cta_main,
@@ -220,8 +216,8 @@ class Webs extends Component
         $web = Web::query()->where('client_id', $this->client->id)->findOrFail($id);
 
         $this->webId = $web->id;
-        $this->name = $web->name;
         $this->url = $web->url;
+
         $this->type = $web->type;
         $this->objective = $web->objective;
         $this->cta_main = $web->cta_main;
@@ -294,8 +290,7 @@ class Webs extends Component
         $webs = Web::query()
             ->where('client_id', $this->client->id)
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('url', 'like', '%' . $this->search . '%');
+                $query->where('url', 'like', '%' . $this->search . '%');
             })
             ->latest()
             ->paginate($this->perPage);

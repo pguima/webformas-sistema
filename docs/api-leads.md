@@ -69,6 +69,45 @@ O Kanban usa colunas fixas. O campo `stage` deve ser um destes valores:
 - Rota: `/api/leads`
 - Ability necessária: `leads.read`
 
+#### 4.1.1) Filtros (pesquisa)
+
+Você pode filtrar/pesquisar leads usando *query params* na própria rota `/api/leads`.
+
+Parâmetros suportados:
+
+- `whatsapp` (match exato)
+- `external_id` (match exato)
+- `stage` (match exato)
+- `campaign` (match exato)
+- `origin` (match exato)
+- `name` (parcial / `LIKE`)
+
+Exemplos:
+
+Buscar por WhatsApp específico:
+
+```bash
+curl -H "Authorization: Bearer SEU_TOKEN" \
+  "http://webformas-sistema.test/api/leads?whatsapp=5511999999999"
+```
+
+Buscar por `external_id`:
+
+```bash
+curl -H "Authorization: Bearer SEU_TOKEN" \
+  "http://webformas-sistema.test/api/leads?external_id=ABC123"
+```
+
+Buscar por nome (parcial):
+
+```bash
+curl -H "Authorization: Bearer SEU_TOKEN" \
+  "http://webformas-sistema.test/api/leads?name=joao"
+```
+
+> Observação: o retorno continua sendo uma lista no formato `{ "data": [...] }`.
+> Se o filtro resultar em apenas um lead, ele virá como um único item dentro de `data`.
+
 Exemplo:
 
 ```bash

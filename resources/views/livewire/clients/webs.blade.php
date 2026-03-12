@@ -128,16 +128,13 @@
                         </div>
 
                         <div class="min-w-0">
-                            <div class="text-sm font-semibold text-(--text-primary) truncate">{{ $web->name }}</div>
-                            <div class="mt-1 text-xs text-(--text-muted) truncate">{{ $web->url }}</div>
+                            <div class="text-sm font-semibold text-(--text-primary) truncate">{{ $web->url }}</div>
+                            <div class="mt-1 text-xs text-(--text-muted) truncate">{{ $web->type }}</div>
                         </div>
 
                         <div class="mt-4 flex flex-wrap gap-2">
                             @if($web->status)
                                 <x-ds::badge variant="secondary">{{ $web->status }}</x-ds::badge>
-                            @endif
-                            @if($web->type)
-                                <x-ds::badge variant="secondary">{{ $web->type }}</x-ds::badge>
                             @endif
                             @if($web->platform)
                                 <x-ds::badge variant="secondary">{{ $web->platform }}</x-ds::badge>
@@ -171,15 +168,12 @@
                 {{ $webs->links() }}
             </div>
         @else
-            <x-ds::table :headers="[__('app.webs.table.name'), __('app.webs.table.url'), __('app.webs.table.platform'), __('app.webs.table.responsible'), __('app.webs.table.pagespeed'), __('app.webs.table.status'), __('app.webs.table.actions')]">
+            <x-ds::table :headers="[__('app.webs.table.url'), __('app.webs.table.platform'), __('app.webs.table.responsible'), __('app.webs.table.pagespeed'), __('app.webs.table.status'), __('app.webs.table.actions')]">
                 @forelse($webs as $web)
                     <tr class="border-b border-(--border-subtle) transition-colors hover:bg-(--surface-hover)" wire:key="{{ $web->id }}">
                         <x-ds::table-cell>
-                            <div class="text-sm font-medium text-(--text-primary)">{{ $web->name }}</div>
+                            <div class="text-sm font-medium text-(--text-primary)">{{ $web->url }}</div>
                             <div class="mt-1 text-xs text-(--text-muted)">{{ $web->type }}</div>
-                        </x-ds::table-cell>
-                        <x-ds::table-cell>
-                            <div class="text-sm text-(--text-secondary)">{{ $web->url }}</div>
                         </x-ds::table-cell>
                         <x-ds::table-cell>
                             <div class="text-sm text-(--text-secondary)">{{ $web->platform ?: __('app.common.dash') }}</div>
@@ -251,7 +245,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="py-8 text-center text-sm text-(--text-secondary)">
+                        <td colspan="6" class="py-8 text-center text-sm text-(--text-secondary)">
                             {{ __('app.webs.no_results', ['search' => $search]) }}
                         </td>
                     </tr>
@@ -284,8 +278,7 @@
             @endif
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <x-ds::input label="{{ __('app.webs.form.name') }}" wire:model="name" required :error="$errors->first('name')" />
-                <x-ds::input label="{{ __('app.webs.form.url') }}" wire:model="url" :error="$errors->first('url')" />
+                <x-ds::input label="{{ __('app.webs.form.url') }}" wire:model="url" required :error="$errors->first('url')" />
             </div>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
