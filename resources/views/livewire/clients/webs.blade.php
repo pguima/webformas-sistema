@@ -1,4 +1,8 @@
-<div class="space-y-6">
+<div
+    class="space-y-6"
+    x-data="{}"
+    x-on:client-web-tab-activated.window="$wire.set('pagespeedOffcanvasOpen', false); $wire.set('pagespeedWebId', null)"
+>
     @php
         $scoreVariantInt = function ($score) {
             if ($score === null || $score === '') return 'secondary';
@@ -100,6 +104,27 @@
                                 <span
                                     wire:loading
                                     wire:target="audit({{ $web->id }})"
+                                    class="absolute inset-0 flex items-center justify-center"
+                                >
+                                    <x-ds::spinner size="sm" variant="secondary" />
+                                </span>
+                            </x-ds::button>
+
+                            <x-ds::button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                icon="solar:graph-new-linear"
+                                title="PageSpeed"
+                                wire:click="pagespeed({{ $web->id }})"
+                                wire:loading.attr="disabled"
+                                wire:loading.class="opacity-60 cursor-wait"
+                                wire:target="pagespeed({{ $web->id }})"
+                                class="relative"
+                            >
+                                <span
+                                    wire:loading
+                                    wire:target="pagespeed({{ $web->id }})"
                                     class="absolute inset-0 flex items-center justify-center"
                                 >
                                     <x-ds::spinner size="sm" variant="secondary" />
@@ -225,6 +250,27 @@
                                     type="button"
                                     size="icon"
                                     variant="ghost"
+                                    icon="solar:graph-new-linear"
+                                    title="PageSpeed"
+                                    wire:click="pagespeed({{ $web->id }})"
+                                    wire:loading.attr="disabled"
+                                    wire:loading.class="opacity-60 cursor-wait"
+                                    wire:target="pagespeed({{ $web->id }})"
+                                    class="relative"
+                                >
+                                    <span
+                                        wire:loading
+                                        wire:target="pagespeed({{ $web->id }})"
+                                        class="absolute inset-0 flex items-center justify-center"
+                                    >
+                                        <x-ds::spinner size="sm" variant="secondary" />
+                                    </span>
+                                </x-ds::button>
+
+                                <x-ds::button
+                                    type="button"
+                                    size="icon"
+                                    variant="ghost"
                                     icon="solar:pen-linear"
                                     wire:mouseenter="prefetch({{ $web->id }})"
                                     x-on:click="$dispatch('open-edit-client-web-offcanvas'); $wire.edit({{ $web->id }})"
@@ -282,17 +328,17 @@
             </div>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <x-ds::select label="{{ __('app.webs.form.type') }}" wire:model="type" :options="__('app.webs.types')" :error="$errors->first('type')" />
-                <x-ds::select label="{{ __('app.webs.form.objective') }}" wire:model="objective" :options="__('app.webs.objectives')" :error="$errors->first('objective')" />
+                <x-ds::select name="type" label="{{ __('app.webs.form.type') }}" wire:model="type" :value="$type" :options="__('app.webs.types')" :error="$errors->first('type')" />
+                <x-ds::select name="objective" label="{{ __('app.webs.form.objective') }}" wire:model="objective" :value="$objective" :options="__('app.webs.objectives')" :error="$errors->first('objective')" />
             </div>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <x-ds::input label="{{ __('app.webs.form.cta_main') }}" wire:model="cta_main" :error="$errors->first('cta_main')" />
-                <x-ds::select label="{{ __('app.webs.form.platform') }}" wire:model="platform" :options="__('app.webs.platforms')" :error="$errors->first('platform')" />
+                <x-ds::select name="platform" label="{{ __('app.webs.form.platform') }}" wire:model="platform" :value="$platform" :options="__('app.webs.platforms')" :error="$errors->first('platform')" />
             </div>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <x-ds::select label="{{ __('app.webs.form.status') }}" wire:model="status" :options="__('app.webs.statuses')" :error="$errors->first('status')" />
+                <x-ds::select name="status" label="{{ __('app.webs.form.status') }}" wire:model="status" :value="$status" :options="__('app.webs.statuses')" :error="$errors->first('status')" />
                 <x-ds::input label="{{ __('app.webs.form.responsible') }}" wire:model="responsible" :error="$errors->first('responsible')" />
             </div>
 
@@ -339,6 +385,22 @@
     >
         @if($auditWebId)
             <livewire:clients.web-audit :webId="$auditWebId" :key="'client-web-audit-' . $client->id . '-' . $auditWebId" />
+        @else
+            <div class="text-sm text-(--text-secondary)">{{ __('app.common.dash') }}</div>
+        @endif
+    </x-ds::offcanvas>
+
+    <x-ds::offcanvas
+        x-data="{ open: $wire.entangle('pagespeedOffcanvasOpen') }"
+        x-on:open-client-web-pagespeed-offcanvas.window="open = true"
+        x-on:close-client-web-pagespeed-offcanvas.window="open = false"
+        title="PageSpeed"
+        description="Dashboard e detalhes do PageSpeed Insights."
+        position="right"
+        size="full"
+    >
+        @if($pagespeedWebId)
+            <livewire:clients.web-page-speed :webId="$pagespeedWebId" :key="'client-web-pagespeed-' . $client->id . '-' . $pagespeedWebId" />
         @else
             <div class="text-sm text-(--text-secondary)">{{ __('app.common.dash') }}</div>
         @endif

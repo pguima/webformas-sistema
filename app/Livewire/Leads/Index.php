@@ -104,6 +104,11 @@ class Index extends Component
             ->all();
     }
 
+    public function refreshColumns(): void
+    {
+        $this->dispatch('leads-updated', columns: $this->buildColumns());
+    }
+
     public function rules(): array
     {
         return [

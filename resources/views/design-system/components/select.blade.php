@@ -3,6 +3,7 @@
     'id' => null,
     'name' => null,
     'options' => [], // ['value' => 'Label'] or [['value' => 'v', 'label' => 'l']]
+    'value' => null,
     'placeholder' => null,
     'helper' => null,
     'error' => null,
@@ -37,6 +38,8 @@
     $messageClass = 'text-xs';
     $errorClass = 'text-(--status-error)';
     $helperClass = 'text-(--text-secondary)';
+
+    $currentValue = $value;
 @endphp
 
 <div class="{{ $containerClass }}">
@@ -67,11 +70,15 @@
 
             @foreach ($options as $key => $option)
                 @if (is_array($option))
-                     <option value="{{ $option['value'] }}" {{ isset($option['selected']) && $option['selected'] ? 'selected' : '' }}>
+                     <option
+                        value="{{ $option['value'] }}"
+                        {{ isset($option['selected']) && $option['selected'] ? 'selected' : '' }}
+                        {{ (string) ($option['value'] ?? '') === (string) ($currentValue ?? '') ? 'selected' : '' }}
+                    >
                         {{ $option['label'] }}
                     </option>
                 @else
-                    <option value="{{ $key }}">{{ $option }}</option>
+                    <option value="{{ $key }}" {{ (string) $key === (string) ($currentValue ?? '') ? 'selected' : '' }}>{{ $option }}</option>
                 @endif
             @endforeach
             

@@ -47,7 +47,7 @@
             <button
                 type="button"
                 role="tab"
-                x-on:click="active = 'web'"
+                x-on:click="active = 'web'; $nextTick(() => window.dispatchEvent(new CustomEvent('client-web-tab-activated')) )"
                 x-bind:aria-selected="active === 'web' ? 'true' : 'false'"
                 class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-(--color-primary)/20"
                 x-bind:class="active === 'web' ? 'border-b-2 border-(--color-primary) text-(--color-primary)' : 'border-b-2 border-transparent text-(--text-secondary) hover:text-(--text-primary)'"

@@ -38,6 +38,7 @@
     @if ($viewMode === 'kanban')
         <x-ds::card :title="__('app.leads.kanban.title')" :description="__('app.leads.kanban.description')">
             <div
+                wire:poll.60s="refreshColumns"
                 x-data="{
                     dragged: null,
                     columns: @js($columns),
@@ -282,6 +283,7 @@
         </x-ds::card>
     @else
         <x-ds::card :title="__('app.leads.list.title')" :description="__('app.leads.list.description')">
+            <div wire:poll.60s="refreshColumns"></div>
             <x-ds::table :headers="[__('app.leads.table.name'), __('app.leads.table.whatsapp'), __('app.leads.table.stage'), __('app.leads.table.responsible'), __('app.leads.table.updated_at'), __('app.leads.table.actions')]">
                 @forelse(collect($columns)->flatMap(fn ($c) => $c['leads']) as $lead)
                     <tr class="border-b border-(--border-subtle) transition-colors hover:bg-(--surface-hover)" wire:key="lead-row-{{ $lead['id'] }}">
