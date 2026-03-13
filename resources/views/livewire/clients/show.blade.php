@@ -149,6 +149,14 @@
                                         @endif
                                     </div>
 
+                                    <div>
+                                        @if ($metaAdsActive)
+                                            <x-ds::badge variant="success" style="soft" dot>Meta ADS ativo</x-ds::badge>
+                                        @else
+                                            <x-ds::badge variant="warning" style="soft" dot>Meta ADS pendente</x-ds::badge>
+                                        @endif
+                                    </div>
+
                                     <div class="text-sm text-(--text-secondary)">
                                         {{ __('app.clients.profile.cards.campaign.description') }}
                                     </div>

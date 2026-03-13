@@ -29,9 +29,11 @@ class Show extends Component
 
         $campaign = Campaign::query()->where('client_id', $this->client->id)->first();
         $hasManagerId = (bool) ($campaign?->manager_customer_id && trim((string) $campaign->manager_customer_id) !== '');
-        $hasClientId = (bool) ($campaign?->client_customer_id && trim((string) $campaign->client_customer_id) !== '');
+        $hasClientId = (bool) ($campaign?->client_customer_id && trim((string) $campaign?->client_customer_id) !== '');
 
         $googleAdsActive = $hasManagerId && $hasClientId;
+
+        $metaAdsActive = (bool) ($campaign?->meta_ads_account_id && trim((string) $campaign->meta_ads_account_id) !== '');
 
         return view('livewire.clients.show', [
             'client' => $this->client,
@@ -39,6 +41,7 @@ class Show extends Component
             'services' => $services,
             'campaign' => $campaign,
             'googleAdsActive' => $googleAdsActive,
+            'metaAdsActive' => $metaAdsActive,
         ])->layout('layouts.app');
     }
 }

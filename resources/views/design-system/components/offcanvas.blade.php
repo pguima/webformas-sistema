@@ -1,4 +1,5 @@
 @props([
+     'id' => null,
      'title' => null,
      'description' => null,
     'open' => false,
@@ -11,7 +12,7 @@
 ])
 
 @php
-    $offcanvasId = 'ds-offcanvas-' . uniqid();
+    $offcanvasId = $id ?: ('ds-offcanvas-' . uniqid());
 
     $sizeClass = match ($size) {
         'sm' => match ($position) {

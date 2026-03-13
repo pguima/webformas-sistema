@@ -227,6 +227,7 @@ return [
         'fields' => [
             'manager_customer_id' => 'Manager Customer ID',
             'client_customer_id' => 'Client Customer ID',
+            'meta_ads_account_id' => 'Meta Ads Account ID',
         ],
 
         'table' => [

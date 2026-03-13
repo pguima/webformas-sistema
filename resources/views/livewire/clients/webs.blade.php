@@ -375,6 +375,7 @@
     </x-ds::offcanvas>
 
     <x-ds::offcanvas
+        id="client-web-audit-offcanvas"
         x-data="{ open: false }"
         x-on:open-client-web-audit-offcanvas.window="open = true"
         x-on:close-client-web-audit-offcanvas.window="open = false"
@@ -391,6 +392,7 @@
     </x-ds::offcanvas>
 
     <x-ds::offcanvas
+        id="client-web-pagespeed-offcanvas"
         x-data="{ open: $wire.entangle('pagespeedOffcanvasOpen') }"
         x-on:open-client-web-pagespeed-offcanvas.window="open = true"
         x-on:close-client-web-pagespeed-offcanvas.window="open = false"

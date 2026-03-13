@@ -17,6 +17,7 @@ class Campaign extends Model
         'client_id',
         'manager_customer_id',
         'client_customer_id',
+        'meta_ads_account_id',
     ];
 
     public function client(): BelongsTo

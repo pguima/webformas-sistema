@@ -16,6 +16,8 @@ class CampaignProfile extends Component
 
     public ?string $client_customer_id = null;
 
+    public ?string $meta_ads_account_id = null;
+
     public function mount(Client $client): void
     {
         $this->client = $client;
@@ -27,6 +29,7 @@ class CampaignProfile extends Component
 
         $this->manager_customer_id = $this->campaign->manager_customer_id;
         $this->client_customer_id = $this->campaign->client_customer_id;
+        $this->meta_ads_account_id = $this->campaign->meta_ads_account_id;
     }
 
     public function rules(): array
@@ -34,6 +37,7 @@ class CampaignProfile extends Component
         return [
             'manager_customer_id' => ['nullable', 'string', 'max:255'],
             'client_customer_id' => ['nullable', 'string', 'max:255'],
+            'meta_ads_account_id' => ['nullable', 'string', 'max:255'],
         ];
     }
 

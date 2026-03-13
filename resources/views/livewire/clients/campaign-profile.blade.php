@@ -15,6 +15,12 @@
                 wire:model="client_customer_id"
                 :error="$errors->first('client_customer_id')"
             />
+
+            <x-ds::input
+                label="{{ __('app.campaigns.fields.meta_ads_account_id') }}"
+                wire:model="meta_ads_account_id"
+                :error="$errors->first('meta_ads_account_id')"
+            />
         </div>
 
         <div class="flex justify-end">
