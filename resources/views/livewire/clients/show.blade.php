@@ -140,16 +140,14 @@
 
                         <x-ds::card title="{{ __('app.clients.profile.cards.campaign.title') }}" description="{{ __('app.clients.profile.cards.campaign.description') }}">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div class="flex flex-col gap-2">
-                                    <div>
+                                <div class="flex w-full flex-col gap-3">
+                                    <div class="flex flex-wrap items-center gap-2">
                                         @if ($googleAdsActive)
                                             <x-ds::badge variant="success" style="soft" dot>Google ADS ativo</x-ds::badge>
                                         @else
                                             <x-ds::badge variant="warning" style="soft" dot>Google ADS pendente</x-ds::badge>
                                         @endif
-                                    </div>
 
-                                    <div>
                                         @if ($metaAdsActive)
                                             <x-ds::badge variant="success" style="soft" dot>Meta ADS ativo</x-ds::badge>
                                         @else
@@ -157,8 +155,21 @@
                                         @endif
                                     </div>
 
-                                    <div class="text-sm text-(--text-secondary)">
-                                        {{ __('app.clients.profile.cards.campaign.description') }}
+                                    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                                        <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) px-3 py-2">
+                                            <div class="text-xs font-medium text-(--text-muted)">{{ __('app.campaigns.fields.manager_customer_id') }}</div>
+                                            <div class="mt-1 font-mono text-sm text-(--text-primary)">{{ $campaign?->manager_customer_id ?: __('app.common.dash') }}</div>
+                                        </div>
+
+                                        <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) px-3 py-2">
+                                            <div class="text-xs font-medium text-(--text-muted)">{{ __('app.campaigns.fields.client_customer_id') }}</div>
+                                            <div class="mt-1 font-mono text-sm text-(--text-primary)">{{ $campaign?->client_customer_id ?: __('app.common.dash') }}</div>
+                                        </div>
+
+                                        <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) px-3 py-2">
+                                            <div class="text-xs font-medium text-(--text-muted)">{{ __('app.campaigns.fields.meta_ads_account_id') }}</div>
+                                            <div class="mt-1 font-mono text-sm text-(--text-primary)">{{ $campaign?->meta_ads_account_id ?: __('app.common.dash') }}</div>
+                                        </div>
                                     </div>
                                 </div>
 
