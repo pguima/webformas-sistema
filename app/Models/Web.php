@@ -23,12 +23,6 @@ class Web extends Model
         'platform',
         'status',
         'responsible',
-        'site_created_at',
-        'site_updated_at',
-        'hosting',
-        'domain_until',
-        'ssl',
-        'certificate_until',
         'gtm_analytics',
         'pagespeed_mobile',
         'pagespeed_desktop',
@@ -38,15 +32,10 @@ class Web extends Model
         'accessibility',
         'best_practices',
         'pagespeed_last_checked_at',
-        'priority',
         'notes',
     ];
 
     protected $casts = [
-        'site_created_at' => 'date',
-        'site_updated_at' => 'date',
-        'domain_until' => 'date',
-        'certificate_until' => 'date',
         'pagespeed_mobile' => 'integer',
         'pagespeed_desktop' => 'integer',
         'seo_score' => 'integer',
@@ -55,7 +44,6 @@ class Web extends Model
         'accessibility' => 'integer',
         'best_practices' => 'integer',
         'pagespeed_last_checked_at' => 'datetime',
-        'priority' => 'integer',
     ];
 
     public function client(): BelongsTo

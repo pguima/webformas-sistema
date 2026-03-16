@@ -343,23 +343,7 @@
             </div>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <x-ds::input label="{{ __('app.webs.form.site_created_at') }}" wire:model="site_created_at" type="date" :error="$errors->first('site_created_at')" />
-                <x-ds::input label="{{ __('app.webs.form.site_updated_at') }}" wire:model="site_updated_at" type="date" :error="$errors->first('site_updated_at')" />
-            </div>
-
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <x-ds::input label="{{ __('app.webs.form.hosting') }}" wire:model="hosting" :error="$errors->first('hosting')" />
-                <x-ds::input label="{{ __('app.webs.form.domain_until') }}" wire:model="domain_until" type="date" :error="$errors->first('domain_until')" />
-            </div>
-
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <x-ds::input label="{{ __('app.webs.form.ssl') }}" wire:model="ssl" :error="$errors->first('ssl')" />
-                <x-ds::input label="{{ __('app.webs.form.certificate_until') }}" wire:model="certificate_until" type="date" :error="$errors->first('certificate_until')" />
-            </div>
-
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <x-ds::input label="{{ __('app.webs.form.gtm_analytics') }}" wire:model="gtm_analytics" :error="$errors->first('gtm_analytics')" />
-                <x-ds::input label="{{ __('app.webs.form.priority') }}" wire:model="priority" type="number" :error="$errors->first('priority')" />
             </div>
 
             <x-ds::textarea label="{{ __('app.webs.form.notes') }}" wire:model="notes" :error="$errors->first('notes')" rows="4" />

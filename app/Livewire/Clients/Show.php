@@ -6,10 +6,17 @@ use App\Models\Campaign;
 use App\Models\Client;
 use App\Models\Service;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 class Show extends Component
 {
     public Client $client;
+
+    #[On('client-campaign-updated')]
+    public function refreshCampaignCard(): void
+    {
+        // no-op: apenas força o componente a re-renderizar
+    }
 
     public function mount(Client $client): void
     {

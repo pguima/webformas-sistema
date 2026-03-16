@@ -47,18 +47,6 @@ class Index extends Component
 
     public ?string $responsible = null;
 
-    public ?string $site_created_at = null;
-
-    public ?string $site_updated_at = null;
-
-    public ?string $hosting = null;
-
-    public ?string $domain_until = null;
-
-    public ?string $ssl = null;
-
-    public ?string $certificate_until = null;
-
     public ?string $gtm_analytics = null;
 
     public $pagespeed_mobile = null;
@@ -66,8 +54,6 @@ class Index extends Component
     public $pagespeed_desktop = null;
 
     public $seo_score = null;
-
-    public $priority = null;
 
     public ?string $notes = null;
 
@@ -93,21 +79,12 @@ class Index extends Component
             'status' => ['nullable', 'string', 'max:50'],
 
             'responsible' => ['nullable', 'string', 'max:255'],
-
-            'site_created_at' => ['nullable', 'date'],
-            'site_updated_at' => ['nullable', 'date'],
-
-            'hosting' => ['nullable', 'string', 'max:255'],
-            'domain_until' => ['nullable', 'date'],
-            'ssl' => ['nullable', 'string', 'max:255'],
-            'certificate_until' => ['nullable', 'date'],
             'gtm_analytics' => ['nullable', 'string', 'max:255'],
 
             'pagespeed_mobile' => ['nullable', 'integer', 'min:0', 'max:100'],
             'pagespeed_desktop' => ['nullable', 'integer', 'min:0', 'max:100'],
             'seo_score' => ['nullable', 'integer', 'min:0', 'max:100'],
 
-            'priority' => ['nullable', 'integer', 'min:0', 'max:100'],
             'notes' => ['nullable', 'string'],
         ];
     }
@@ -130,17 +107,10 @@ class Index extends Component
                 'platform',
                 'status',
                 'responsible',
-                'site_created_at',
-                'site_updated_at',
-                'hosting',
-                'domain_until',
-                'ssl',
-                'certificate_until',
                 'gtm_analytics',
                 'pagespeed_mobile',
                 'pagespeed_desktop',
                 'seo_score',
-                'priority',
                 'notes',
             ])
             ->find($id);
@@ -159,17 +129,10 @@ class Index extends Component
             'platform' => $web->platform,
             'status' => $web->status,
             'responsible' => $web->responsible,
-            'site_created_at' => optional($web->site_created_at)->format('Y-m-d'),
-            'site_updated_at' => optional($web->site_updated_at)->format('Y-m-d'),
-            'hosting' => $web->hosting,
-            'domain_until' => optional($web->domain_until)->format('Y-m-d'),
-            'ssl' => $web->ssl,
-            'certificate_until' => optional($web->certificate_until)->format('Y-m-d'),
             'gtm_analytics' => $web->gtm_analytics,
             'pagespeed_mobile' => $web->pagespeed_mobile,
             'pagespeed_desktop' => $web->pagespeed_desktop,
             'seo_score' => $web->seo_score,
-            'priority' => $web->priority,
             'notes' => $web->notes,
         ];
     }
@@ -179,6 +142,9 @@ class Index extends Component
         if (isset($this->prefetchedWebs[$id])) {
             $this->webId = $id;
             $this->fill($this->prefetchedWebs[$id]);
+
+            $this->platform = $this->platform ?: 'WordPress';
+            $this->status = $this->status ?: 'Ativo';
             return;
         }
 
@@ -191,20 +157,13 @@ class Index extends Component
         $this->type = $web->type;
         $this->objective = $web->objective;
         $this->cta_main = $web->cta_main;
-        $this->platform = $web->platform;
-        $this->status = $web->status;
+        $this->platform = $web->platform ?: 'WordPress';
+        $this->status = $web->status ?: 'Ativo';
         $this->responsible = $web->responsible;
-        $this->site_created_at = optional($web->site_created_at)->format('Y-m-d');
-        $this->site_updated_at = optional($web->site_updated_at)->format('Y-m-d');
-        $this->hosting = $web->hosting;
-        $this->domain_until = optional($web->domain_until)->format('Y-m-d');
-        $this->ssl = $web->ssl;
-        $this->certificate_until = optional($web->certificate_until)->format('Y-m-d');
         $this->gtm_analytics = $web->gtm_analytics;
         $this->pagespeed_mobile = $web->pagespeed_mobile;
         $this->pagespeed_desktop = $web->pagespeed_desktop;
         $this->seo_score = $web->seo_score;
-        $this->priority = $web->priority;
         $this->notes = $web->notes;
     }
 
@@ -220,6 +179,8 @@ class Index extends Component
         $web = Web::findOrFail($this->webId);
         $web->update($data);
 
+        $this->prefetchedWebs = [];
+
         $this->dispatch('notify', message: __('app.webs.messages.updated_success'), variant: 'success', title: __('app.webs.messages.success_title'));
         $this->dispatch('close-web-offcanvas');
 
@@ -234,17 +195,10 @@ class Index extends Component
             'platform',
             'status',
             'responsible',
-            'site_created_at',
-            'site_updated_at',
-            'hosting',
-            'domain_until',
-            'ssl',
-            'certificate_until',
             'gtm_analytics',
             'pagespeed_mobile',
             'pagespeed_desktop',
             'seo_score',
-            'priority',
             'notes',
         ]);
     }

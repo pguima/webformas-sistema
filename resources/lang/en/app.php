@@ -40,7 +40,7 @@ return [
             'tabs' => [
                 'profile' => 'Profile',
                 'web' => 'Web',
-                'campaign' => 'Campaign',
+                'campaign' => 'Campaigns/Ads',
                 'contacts' => 'Contacts',
             ],
 
@@ -125,6 +125,9 @@ return [
             'name' => 'Name',
             'client' => 'Client',
             'url' => 'URL',
+            'platform' => 'Platform',
+            'responsible' => 'Responsible',
+            'pagespeed' => 'PageSpeed',
             'status' => 'Status',
             'actions' => 'Actions',
         ],
@@ -146,18 +149,11 @@ return [
             'cta_main' => 'Main CTA',
             'platform' => 'Platform',
             'status' => 'Status',
-            'responsible' => 'Owner',
-            'site_created_at' => 'Creation date',
-            'site_updated_at' => 'Last update',
-            'hosting' => 'Hosting',
-            'domain_until' => 'Domain until',
-            'ssl' => 'SSL',
-            'certificate_until' => 'Certificate until',
+            'responsible' => 'Responsible',
             'gtm_analytics' => 'GTM/Analytics',
             'pagespeed_mobile' => 'PageSpeed (mobile)',
             'pagespeed_desktop' => 'PageSpeed (desktop)',
-            'seo_score' => 'SEO score',
-            'priority' => 'Priority',
+            'seo_score' => 'SEO Score',
             'notes' => 'Notes',
             'cancel' => 'Cancel',
             'save' => 'Save',
@@ -265,17 +261,17 @@ return [
         ],
 
         'profile_card' => [
-            'title' => 'Campaign (Integration)',
+            'title' => 'Campaigns/Ads (Integration)',
             'description' => 'Configure IDs to load the dashboard data.',
         ],
 
         'client_tab' => [
-            'title' => 'Campaign',
-            'subtitle' => 'Campaign dashboard for :name',
+            'title' => 'Campaigns/Ads',
+            'subtitle' => 'Campaigns/ads dashboard for :name',
         ],
 
         'dashboard' => [
-            'title' => 'Campaign dashboard',
+            'title' => 'Campaigns/ads dashboard',
             'subtitle' => 'Data for :name',
             'back' => 'Back',
             'period' => 'Period',
@@ -294,7 +290,7 @@ return [
             'conversions_subtitle' => 'Top campaigns by conversions',
             'total_of' => ':total total',
             'empty' => 'No data for the selected period.',
-            'missing_ids' => 'Fill in the IDs (Manager/Client Customer ID) in the client profile to load the dashboard.',
+            'missing_ids' => 'Fill in the Google IDs (Manager/Client Customer ID) and/or the Meta Ads Account ID in the client profile to load the dashboard.',
             'error' => 'Failed to load integration data.',
             'series' => [
                 'clicks' => 'Clicks',

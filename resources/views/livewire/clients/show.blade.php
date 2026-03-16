@@ -173,7 +173,7 @@
                                     </div>
                                 </div>
 
-                                <x-ds::modal size="lg">
+                                <x-ds::modal size="lg" x-on:campaign-profile-saved.window="closeModal()">
                                     <x-slot:trigger>
                                         <x-ds::button variant="secondary" icon="solar:pen-linear">
                                             {{ __('app.common.edit') }}

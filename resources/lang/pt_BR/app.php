@@ -42,7 +42,7 @@ return [
             'tabs' => [
                 'profile' => 'Perfil',
                 'web' => 'Web',
-                'campaign' => 'Campanha',
+                'campaign' => 'Campanhas/Anúncios',
                 'contacts' => 'Contatos',
             ],
 
@@ -163,17 +163,10 @@ return [
             'platform' => 'Plataforma',
             'status' => 'Status',
             'responsible' => 'Responsável',
-            'site_created_at' => 'Data de Criação',
-            'site_updated_at' => 'Última Atualização',
-            'hosting' => 'Hospedagem',
-            'domain_until' => 'Domínio até',
-            'ssl' => 'SSL',
-            'certificate_until' => 'Certificado até',
             'gtm_analytics' => 'GTM/Analytics',
             'pagespeed_mobile' => 'PageSpeed (mob)',
             'pagespeed_desktop' => 'PageSpeed (desk)',
             'seo_score' => 'SEO Score',
-            'priority' => 'Prioridade',
             'notes' => 'Observações',
             'cancel' => 'Cancelar',
             'save' => 'Salvar',
@@ -281,17 +274,17 @@ return [
         ],
 
         'profile_card' => [
-            'title' => 'Campanha (Integração)',
+            'title' => 'Campanhas/Anúncios (Integração)',
             'description' => 'Configure os IDs para carregar os dados da dashboard.',
         ],
 
         'client_tab' => [
-            'title' => 'Campanha',
-            'subtitle' => 'Dashboard de campanha de :name',
+            'title' => 'Campanhas/Anúncios',
+            'subtitle' => 'Dashboard de campanhas/anúncios de :name',
         ],
 
         'dashboard' => [
-            'title' => 'Dashboard de campanha',
+            'title' => 'Dashboard de campanhas/anúncios',
             'subtitle' => 'Dados de :name',
             'back' => 'Voltar',
             'period' => 'Período',
@@ -310,7 +303,7 @@ return [
             'conversions_subtitle' => 'Top campanhas por conversões',
             'total_of' => ':total total',
             'empty' => 'Nenhum dado para o período selecionado.',
-            'missing_ids' => 'Preencha os IDs (Manager/Client Customer ID) no perfil do cliente para carregar o dashboard.',
+            'missing_ids' => 'Preencha os IDs do Google (Manager/Client Customer ID) e/ou o Meta Ads Account ID no perfil do cliente para carregar o dashboard.',
             'error' => 'Falha ao carregar dados da integração.',
             'series' => [
                 'clicks' => 'Cliques',

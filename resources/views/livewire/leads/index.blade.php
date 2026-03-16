@@ -385,7 +385,7 @@
         title="{{ __('app.leads.offcanvas.create_title') }}"
         description="{{ __('app.leads.offcanvas.create_description') }}"
         position="right"
-        size="md"
+        size="xl"
     >
         <form wire:submit.prevent="save" class="space-y-5">
             @if ($errors->any())
@@ -491,7 +491,7 @@
         title="{{ __('app.leads.offcanvas.edit_title') }}"
         description="{{ __('app.leads.offcanvas.edit_description') }}"
         position="right"
-        size="md"
+        size="xl"
     >
         <form wire:submit.prevent="save" class="space-y-5">
             @if ($errors->any())

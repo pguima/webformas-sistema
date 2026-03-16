@@ -1,7 +1,4 @@
-<x-ds::card
-    title="{{ __('app.campaigns.profile_card.title') }}"
-    description="{{ __('app.campaigns.profile_card.description') }}"
->
+<div>
     <form wire:submit.prevent="save" class="space-y-4">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <x-ds::input
@@ -30,4 +27,4 @@
             </x-ds::button>
         </div>
     </form>
-</x-ds::card>
+</div>

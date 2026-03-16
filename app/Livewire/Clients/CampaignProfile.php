@@ -48,6 +48,9 @@ class CampaignProfile extends Component
         $this->campaign->update($data);
 
         $this->dispatch('notify', message: __('app.campaigns.messages.updated_success'), variant: 'success', title: __('app.campaigns.messages.success_title'));
+
+        $this->dispatch('campaign-profile-saved');
+        $this->dispatch('client-campaign-updated');
     }
 
     public function render()

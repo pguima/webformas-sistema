@@ -18,6 +18,14 @@
                         :options="__('app.campaigns.periods')"
                     />
                 </div>
+
+                <div class="w-full sm:max-w-xs">
+                    <x-ds::select
+                        label="Plataforma"
+                        wire:model.live="platform"
+                        :options="['all' => 'Geral', 'google' => 'Google', 'meta' => 'Meta']"
+                    />
+                </div>
                 <div class="flex gap-2">
                     <x-ds::button
                         type="button"
@@ -64,15 +72,13 @@
                 </div>
 
                 @php
-                    $t = $this->totals;
+                    $k = $this->kpis;
+                    $rows = $this->filteredAds;
+
                     $campaignsTotal  = is_iterable($rows) ? count($rows) : 0;
                     $campaignsActive = is_iterable($rows)
-                        ? count(array_filter($rows, fn ($r) => in_array(strtoupper((string) data_get($r, 'status', '')), ['ENABLED', 'ACTIVE', 'ATIVA', 'ATIVO'], true)))
+                        ? count(array_filter($rows, fn ($r) => in_array(strtoupper((string) data_get($r, 'campaign_status', '')), ['ENABLED', 'ACTIVE', 'ATIVA', 'ATIVO'], true)))
                         : 0;
-                    $optScore  = $t['optimizationScore'];
-                    $optColor  = $optScore === null
-                        ? 'var(--text-muted)'
-                        : ($optScore >= 80 ? 'var(--status-success)' : ($optScore >= 50 ? 'var(--status-warning)' : 'var(--status-error)'));
                 @endphp
 
                 {{-- ══ PRIMARY KPI CARDS ══ --}}
@@ -86,11 +92,11 @@
                             <iconify-icon icon="solar:dollar-minimalistic-linear" style="color: var(--color-primary); font-size: 18px;"></iconify-icon>
                         </div>
                         <div class="text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.cost') }}</div>
-                        <div class="mt-2 text-3xl font-bold leading-none text-(--text-primary)">R$ {{ number_format((float) $t['cost'], 2, ',', '.') }}</div>
+                        <div class="mt-2 text-3xl font-bold leading-none text-(--text-primary)">R$ {{ number_format((float) ($k['spend'] ?? 0), 2, ',', '.') }}</div>
                         <div class="mt-3 flex items-center gap-1.5">
                             <span class="text-xs text-(--text-muted)">{{ __('app.campaigns.metrics.cpc') }}</span>
                             <span class="text-xs font-semibold text-(--text-primary)">
-                                {{ $t['cpc'] !== null ? 'R$ ' . number_format((float) $t['cpc'], 2, ',', '.') : '—' }}
+                                {{ array_key_exists('cpc', $k) && $k['cpc'] !== null ? 'R$ ' . number_format((float) $k['cpc'], 2, ',', '.') : '—' }}
                             </span>
                         </div>
                         <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
@@ -104,11 +110,11 @@
                             <iconify-icon icon="solar:eye-linear" style="color: var(--status-info); font-size: 18px;"></iconify-icon>
                         </div>
                         <div class="text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.impressions') }}</div>
-                        <div class="mt-2 text-3xl font-bold leading-none text-(--text-primary)">{{ number_format((int) $t['impressions'], 0, ',', '.') }}</div>
+                        <div class="mt-2 text-3xl font-bold leading-none text-(--text-primary)">{{ number_format((int) ($k['impressions'] ?? 0), 0, ',', '.') }}</div>
                         <div class="mt-3 flex items-center gap-1.5">
                             <span class="text-xs text-(--text-muted)">CPM</span>
                             <span class="text-xs font-semibold text-(--text-primary)">
-                                {{ $t['avgCpm'] !== null ? 'R$ ' . number_format((float) $t['avgCpm'], 2, ',', '.') : '—' }}
+                                {{ array_key_exists('cpm', $k) && $k['cpm'] !== null ? 'R$ ' . number_format((float) $k['cpm'], 2, ',', '.') : '—' }}
                             </span>
                         </div>
                         <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
@@ -121,11 +127,11 @@
                              style="background: color-mix(in oklab, var(--tag-purple-text) 14%, transparent);">
                             <iconify-icon icon="solar:cursor-linear" style="color: var(--tag-purple-text); font-size: 18px;"></iconify-icon>
                         </div>
-                        <div class="text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.interactions') }}</div>
-                        <div class="mt-2 text-3xl font-bold leading-none text-(--text-primary)">{{ number_format((int) $t['interactions'], 0, ',', '.') }}</div>
+                        <div class="text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.table.interactions') }}</div>
+                        <div class="mt-2 text-3xl font-bold leading-none text-(--text-primary)">{{ number_format((int) ($k['clicks'] ?? 0), 0, ',', '.') }}</div>
                         <div class="mt-3 flex items-center gap-1.5">
                             <span class="text-xs text-(--text-muted)">CTR</span>
-                            <span class="text-xs font-semibold text-(--text-primary)">{{ number_format((float) $t['ctr'], 2, ',', '.') }}%</span>
+                            <span class="text-xs font-semibold text-(--text-primary)">{{ number_format((float) ($k['ctr'] ?? 0), 2, ',', '.') }}%</span>
                         </div>
                         <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
                     </div>
@@ -137,12 +143,12 @@
                              style="background: color-mix(in oklab, var(--status-success) 14%, transparent);">
                             <iconify-icon icon="solar:target-linear" style="color: var(--status-success); font-size: 18px;"></iconify-icon>
                         </div>
-                        <div class="text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.conversions') }}</div>
-                        <div class="mt-2 text-3xl font-bold leading-none text-(--text-primary)">{{ number_format((float) $t['conversions'], 0, ',', '.') }}</div>
+                        <div class="text-[11px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ $k['extra_label'] ?? __('app.campaigns.metrics.conversions') }}</div>
+                        <div class="mt-2 text-3xl font-bold leading-none text-(--text-primary)">{{ number_format((float) ($k['extra_value'] ?? ($k['conversions'] ?? 0)), 0, ',', '.') }}</div>
                         <div class="mt-3 flex items-center gap-1.5">
                             <span class="text-xs text-(--text-muted)">{{ __('app.campaigns.metrics.cpa') }}</span>
                             <span class="text-xs font-semibold text-(--text-primary)">
-                                {{ $t['cpa'] !== null ? 'R$ ' . number_format((float) $t['cpa'], 2, ',', '.') : '—' }}
+                                {{ array_key_exists('cost_per_conversion', $k) && $k['cost_per_conversion'] !== null ? 'R$ ' . number_format((float) $k['cost_per_conversion'], 2, ',', '.') : '—' }}
                             </span>
                         </div>
                         <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
@@ -166,42 +172,45 @@
                         <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.dashboard.total_of', ['total' => $campaignsTotal]) }}</div>
                     </div>
 
-                    {{-- Video Views --}}
+                    {{-- CPM --}}
                     <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4" style="box-shadow: var(--shadow-xs);">
-                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.video_views') }}</div>
-                        <div class="mt-1.5 text-2xl font-bold text-(--text-primary)">{{ number_format((int) $t['videoViews'], 0, ',', '.') }}</div>
-                        <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
-                    </div>
-
-                    {{-- Daily Budget --}}
-                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4" style="box-shadow: var(--shadow-xs);">
-                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.budget') }}</div>
-                        <div class="mt-1.5 text-2xl font-bold text-(--text-primary)">R$ {{ number_format((float) $t['totalBudget'], 2, ',', '.') }}</div>
-                        <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
-                    </div>
-
-                    {{-- Avg CPM --}}
-                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4" style="box-shadow: var(--shadow-xs);">
-                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.avg_cpm') }}</div>
+                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">CPM</div>
                         <div class="mt-1.5 text-2xl font-bold text-(--text-primary)">
-                            {{ $t['avgCpm'] !== null ? 'R$ ' . number_format((float) $t['avgCpm'], 2, ',', '.') : '—' }}
+                            {{ array_key_exists('cpm', $k) && $k['cpm'] !== null ? 'R$ ' . number_format((float) $k['cpm'], 2, ',', '.') : '—' }}
                         </div>
                         <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
                     </div>
 
-                    {{-- Optimization Score --}}
+                    {{-- CPC --}}
                     <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4" style="box-shadow: var(--shadow-xs);">
-                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.optimization') }}</div>
-                        <div class="mt-1.5 text-2xl font-bold" style="color: {{ $optColor }};">
-                            {{ $optScore !== null ? number_format((float) $optScore, 1, ',', '.') . '%' : '—' }}
+                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.cpc') }}</div>
+                        <div class="mt-1.5 text-2xl font-bold text-(--text-primary)">
+                            {{ array_key_exists('cpc', $k) && $k['cpc'] !== null ? 'R$ ' . number_format((float) $k['cpc'], 2, ',', '.') : '—' }}
                         </div>
-                        @if ($optScore !== null)
-                            <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full" style="background: var(--surface-hover);">
-                                <div class="h-full rounded-full transition-all duration-500" style="width: {{ min(100, (float) $optScore) }}%; background: {{ $optColor }};"></div>
-                            </div>
-                        @else
-                            <div class="mt-1 text-[11px] text-(--text-muted)">N/A</div>
-                        @endif
+                        <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
+                    </div>
+
+                    {{-- Cost per conversion --}}
+                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4" style="box-shadow: var(--shadow-xs);">
+                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.metrics.cpa') }}</div>
+                        <div class="mt-1.5 text-2xl font-bold text-(--text-primary)">
+                            {{ array_key_exists('cost_per_conversion', $k) && $k['cost_per_conversion'] !== null ? 'R$ ' . number_format((float) $k['cost_per_conversion'], 2, ',', '.') : '—' }}
+                        </div>
+                        <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
+                    </div>
+
+                    {{-- CTR --}}
+                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4" style="box-shadow: var(--shadow-xs);">
+                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.table.ctr') }}</div>
+                        <div class="mt-1.5 text-2xl font-bold text-(--text-primary)">{{ number_format((float) ($k['ctr'] ?? 0), 2, ',', '.') }}%</div>
+                        <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
+                    </div>
+
+                    {{-- Clicks --}}
+                    <div class="rounded-lg border border-(--border-subtle) bg-(--surface-card) p-4" style="box-shadow: var(--shadow-xs);">
+                        <div class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted)">{{ __('app.campaigns.table.interactions') }}</div>
+                        <div class="mt-1.5 text-2xl font-bold text-(--text-primary)">{{ number_format((int) ($k['clicks'] ?? 0), 0, ',', '.') }}</div>
+                        <div class="mt-1 text-[11px] text-(--text-muted)">{{ __('app.campaigns.metrics.period', ['period' => $period]) }}</div>
                     </div>
                 </div>
 
@@ -379,6 +388,7 @@
                             <table class="w-full text-left text-sm">
                                 <thead class="border-b border-(--border-subtle) bg-(--surface-hover) text-[11px] font-semibold uppercase tracking-wider text-(--text-secondary)">
                                     <tr>
+                                        <th class="px-4 py-3 font-semibold">Plataforma</th>
                                         <th class="px-4 py-3 font-semibold">{{ __('app.campaigns.table.name') }}</th>
                                         <th class="px-4 py-3 font-semibold">{{ __('app.campaigns.table.channel') }}</th>
                                         <th class="px-4 py-3 font-semibold">{{ __('app.campaigns.table.status') }}</th>
@@ -387,49 +397,50 @@
                                         <th class="px-4 py-3 text-right font-semibold">{{ __('app.campaigns.table.ctr') }}</th>
                                         <th class="px-4 py-3 text-right font-semibold">{{ __('app.campaigns.table.conversions') }}</th>
                                         <th class="px-4 py-3 text-right font-semibold">{{ __('app.campaigns.table.cost') }}</th>
-                                        <th class="px-4 py-3 text-right font-semibold">{{ __('app.campaigns.metrics.avg_cpm') }}</th>
-                                        <th class="px-4 py-3 text-right font-semibold">{{ __('app.campaigns.metrics.budget') }}</th>
+                                        <th class="px-4 py-3 text-right font-semibold">CPM</th>
+                                        <th class="px-4 py-3 text-right font-semibold">CPC</th>
+                                        <th class="px-4 py-3 text-right font-semibold">{{ __('app.campaigns.metrics.cpa') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-(--border-subtle)">
                                     @forelse ($rows as $row)
                                         @php
-                                            $status         = (string) data_get($row, 'status', '');
-                                            $rowCostMicros  = (int) data_get($row, 'costMicros', 0);
-                                            $rowCost        = $rowCostMicros / 1_000_000;
+                                            $source = (string) data_get($row, 'source', '');
+                                            $status = (string) data_get($row, 'campaign_status', '');
+
+                                            $rowCost = (float) data_get($row, 'spend', 0);
                                             $rowImpressions = (int) data_get($row, 'impressions', 0);
-                                            $rowInteractions = (int) data_get($row, 'interactions', 0);
-                                            $rowCtr         = (float) data_get($row, 'ctr', 0);
-                                            $rowAmountMicros = (int) data_get($row, 'amountMicros', 0);
-                                            $rowBudget      = $rowAmountMicros / 1_000_000;
-                                            $rowAvgCpm      = $rowImpressions > 0 ? ($rowCost / $rowImpressions) * 1000 : null;
-                                            $rowOptScore    = data_get($row, 'optimizationScore');
+                                            $rowClicks = (int) data_get($row, 'clicks', 0);
+                                            $rowCtr = (float) data_get($row, 'ctr', 0);
+                                            $rowCpm = data_get($row, 'cpm');
+                                            $rowCpc = data_get($row, 'cpc');
+                                            $rowCpa = data_get($row, 'cost_per_conversion');
+
                                             $isActive       = in_array(strtoupper($status), ['ENABLED', 'ACTIVE', 'ATIVA', 'ATIVO'], true);
+                                            $platformLabel = $source === 'google_ads' ? 'Google' : ($source === 'meta_ads' ? 'Meta' : '—');
+                                            $platformVariant = $source === 'google_ads' ? 'info' : ($source === 'meta_ads' ? 'secondary' : 'secondary');
+                                            $rowName = (string) data_get($row, 'campaign_name', data_get($row, 'ad_name', '—'));
+                                            $rowChannel = (string) data_get($row, 'channel_type', data_get($row, 'objective', '—'));
                                         @endphp
                                         <tr class="transition-colors hover:bg-(--surface-hover)">
+                                            {{-- Platform --}}
+                                            <td class="px-4 py-3">
+                                                <x-ds::badge :variant="$platformVariant">{{ $platformLabel }}</x-ds::badge>
+                                            </td>
                                             {{-- Name + ID + Opt Score --}}
                                             <td class="px-4 py-3">
                                                 <div class="max-w-[220px]">
                                                     <div class="truncate text-sm font-medium text-(--text-primary)">
-                                                        {{ data_get($row, 'name', '—') }}
+                                                        {{ $rowName }}
                                                     </div>
-                                                    <div class="mt-0.5 text-[11px] text-(--text-muted)">ID: {{ data_get($row, 'id', '—') }}</div>
-                                                    @if ($rowOptScore !== null)
-                                                        @php
-                                                            $rc = $rowOptScore >= 0.8 ? 'var(--status-success)' : ($rowOptScore >= 0.5 ? 'var(--status-warning)' : 'var(--status-error)');
-                                                        @endphp
-                                                        <span class="mt-1 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium"
-                                                              style="background: color-mix(in oklab, {{ $rc }} 12%, transparent); color: {{ $rc }};">
-                                                            Score: {{ number_format((float) $rowOptScore * 100, 1, ',', '.') }}%
-                                                        </span>
-                                                    @endif
+                                                    <div class="mt-0.5 text-[11px] text-(--text-muted)">{{ $rowChannel }}</div>
                                                 </div>
                                             </td>
                                             {{-- Channel --}}
                                             <td class="px-4 py-3">
                                                 <span class="inline-flex items-center rounded px-2 py-1 text-[11px] font-medium text-(--text-secondary)"
                                                       style="background: var(--surface-hover);">
-                                                    {{ data_get($row, 'advertisingChannelType', '—') }}
+                                                    {{ $rowChannel }}
                                                 </span>
                                             </td>
                                             {{-- Status --}}
@@ -444,11 +455,11 @@
                                             </td>
                                             {{-- Interactions --}}
                                             <td class="px-4 py-3 text-right text-sm tabular-nums text-(--text-secondary)">
-                                                {{ number_format($rowInteractions, 0, ',', '.') }}
+                                                {{ number_format($rowClicks, 0, ',', '.') }}
                                             </td>
                                             {{-- CTR --}}
                                             <td class="px-4 py-3 text-right text-sm tabular-nums text-(--text-secondary)">
-                                                {{ number_format($rowCtr * 100, 2, ',', '.') }}%
+                                                {{ number_format($rowCtr, 2, ',', '.') }}%
                                             </td>
                                             {{-- Conversions --}}
                                             <td class="px-4 py-3 text-right text-sm tabular-nums text-(--text-secondary)">
@@ -460,18 +471,25 @@
                                                     R$ {{ number_format($rowCost, 2, ',', '.') }}
                                                 </span>
                                             </td>
-                                            {{-- Avg CPM --}}
+
+                                            {{-- CPM --}}
                                             <td class="px-4 py-3 text-right text-sm tabular-nums text-(--text-secondary)">
-                                                {{ $rowAvgCpm !== null ? 'R$ ' . number_format($rowAvgCpm, 2, ',', '.') : '—' }}
+                                                {{ $rowCpm !== null ? 'R$ ' . number_format((float) $rowCpm, 2, ',', '.') : '—' }}
                                             </td>
-                                            {{-- Budget --}}
+
+                                            {{-- CPC --}}
                                             <td class="px-4 py-3 text-right text-sm tabular-nums text-(--text-secondary)">
-                                                {{ $rowAmountMicros > 0 ? 'R$ ' . number_format($rowBudget, 2, ',', '.') : '—' }}
+                                                {{ $rowCpc !== null ? 'R$ ' . number_format((float) $rowCpc, 2, ',', '.') : '—' }}
+                                            </td>
+
+                                            {{-- CPA --}}
+                                            <td class="px-4 py-3 text-right text-sm tabular-nums text-(--text-secondary)">
+                                                {{ $rowCpa !== null ? 'R$ ' . number_format((float) $rowCpa, 2, ',', '.') : '—' }}
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="10" class="py-14 text-center">
+                                            <td colspan="12" class="py-14 text-center">
                                                 <div class="flex flex-col items-center gap-3">
                                                     <iconify-icon icon="solar:chart-2-linear" style="color: var(--text-muted); font-size: 36px;"></iconify-icon>
                                                     <span class="text-sm text-(--text-secondary)">{{ __('app.campaigns.dashboard.empty') }}</span>

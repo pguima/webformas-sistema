@@ -97,21 +97,7 @@ class Webs extends Component
 
     public ?string $responsible = null;
 
-    public ?string $site_created_at = null;
-
-    public ?string $site_updated_at = null;
-
-    public ?string $hosting = null;
-
-    public ?string $domain_until = null;
-
-    public ?string $ssl = null;
-
-    public ?string $certificate_until = null;
-
     public ?string $gtm_analytics = null;
-
-    public $priority = null;
 
     public ?string $notes = null;
 
@@ -135,17 +121,7 @@ class Webs extends Component
             'status' => ['nullable', 'string', 'max:50'],
 
             'responsible' => ['nullable', 'string', 'max:255'],
-
-            'site_created_at' => ['nullable', 'date'],
-            'site_updated_at' => ['nullable', 'date'],
-
-            'hosting' => ['nullable', 'string', 'max:255'],
-            'domain_until' => ['nullable', 'date'],
-            'ssl' => ['nullable', 'string', 'max:255'],
-            'certificate_until' => ['nullable', 'date'],
             'gtm_analytics' => ['nullable', 'string', 'max:255'],
-
-            'priority' => ['nullable', 'integer', 'min:0', 'max:100'],
             'notes' => ['nullable', 'string'],
         ];
     }
@@ -162,16 +138,14 @@ class Webs extends Component
             'platform',
             'status',
             'responsible',
-            'site_created_at',
-            'site_updated_at',
-            'hosting',
-            'domain_until',
-            'ssl',
-            'certificate_until',
             'gtm_analytics',
-            'priority',
             'notes',
         ]);
+
+        $this->prefetchedWebs = [];
+
+        $this->platform = 'WordPress';
+        $this->status = 'Ativo';
     }
 
     public function prefetch(int $id): void
@@ -191,14 +165,7 @@ class Webs extends Component
                 'platform',
                 'status',
                 'responsible',
-                'site_created_at',
-                'site_updated_at',
-                'hosting',
-                'domain_until',
-                'ssl',
-                'certificate_until',
                 'gtm_analytics',
-                'priority',
                 'notes',
             ])
             ->find($id);
@@ -216,14 +183,7 @@ class Webs extends Component
             'platform' => $web->platform,
             'status' => $web->status,
             'responsible' => $web->responsible,
-            'site_created_at' => optional($web->site_created_at)->format('Y-m-d'),
-            'site_updated_at' => optional($web->site_updated_at)->format('Y-m-d'),
-            'hosting' => $web->hosting,
-            'domain_until' => optional($web->domain_until)->format('Y-m-d'),
-            'ssl' => $web->ssl,
-            'certificate_until' => optional($web->certificate_until)->format('Y-m-d'),
             'gtm_analytics' => $web->gtm_analytics,
-            'priority' => $web->priority,
             'notes' => $web->notes,
         ];
     }
@@ -233,6 +193,9 @@ class Webs extends Component
         if (isset($this->prefetchedWebs[$id])) {
             $this->webId = $id;
             $this->fill($this->prefetchedWebs[$id]);
+
+            $this->platform = $this->platform ?: 'WordPress';
+            $this->status = $this->status ?: 'Ativo';
             return;
         }
 
@@ -244,17 +207,10 @@ class Webs extends Component
         $this->type = $web->type;
         $this->objective = $web->objective;
         $this->cta_main = $web->cta_main;
-        $this->platform = $web->platform;
-        $this->status = $web->status;
+        $this->platform = $web->platform ?: 'WordPress';
+        $this->status = $web->status ?: 'Ativo';
         $this->responsible = $web->responsible;
-        $this->site_created_at = optional($web->site_created_at)->format('Y-m-d');
-        $this->site_updated_at = optional($web->site_updated_at)->format('Y-m-d');
-        $this->hosting = $web->hosting;
-        $this->domain_until = optional($web->domain_until)->format('Y-m-d');
-        $this->ssl = $web->ssl;
-        $this->certificate_until = optional($web->certificate_until)->format('Y-m-d');
         $this->gtm_analytics = $web->gtm_analytics;
-        $this->priority = $web->priority;
         $this->notes = $web->notes;
     }
 
@@ -268,11 +224,15 @@ class Webs extends Component
             $web = Web::query()->where('client_id', $this->client->id)->findOrFail($this->webId);
             $web->update($data);
 
+            $this->prefetchedWebs = [];
+
             $this->dispatch('notify', message: __('app.webs.messages.updated_success'), variant: 'success', title: __('app.webs.messages.success_title'));
         } else {
             Web::create(array_merge($data, [
                 'client_id' => $this->client->id,
             ]));
+
+            $this->prefetchedWebs = [];
 
             $this->dispatch('notify', message: __('app.webs.messages.created_success'), variant: 'success', title: __('app.webs.messages.success_title'));
         }
