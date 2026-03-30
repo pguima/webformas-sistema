@@ -48,6 +48,9 @@ class WebAudit extends Component
 
     public ?string $pageSpeedLastRunAt = null;
 
+    /** @var array<string, string> src => alt coletados do HTML das páginas */
+    private array $htmlImageAlts = [];
+
     /**
      * Namespaces/recursos detectados no /wp-json
      *
@@ -95,6 +98,7 @@ class WebAudit extends Component
         $this->pageSpeedErrors = [];
 
         $this->wpNamespaces = [];
+        $this->htmlImageAlts = [];
 
         $this->totalImages = 0;
         $this->imagesOk = 0;
@@ -116,6 +120,7 @@ class WebAudit extends Component
             $this->general = $this->fetchGeneral($baseUrl);
             $this->images = $this->fetchImages($baseUrl);
             $this->pages = $this->fetchPages($baseUrl);
+            $this->enrichImageAltsFromHtml();
 
             $this->computeCounters();
         } catch (RequestException $e) {
@@ -138,6 +143,65 @@ class WebAudit extends Component
         $json = $response->json();
 
         return is_array($json) ? $json : [];
+    }
+
+    private function fetchPageHtml(string $url): ?string
+    {
+        try {
+            $response = Http::timeout(10)
+                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; WebAudit/1.0)'])
+                ->get($url);
+
+            return $response->successful() ? $response->body() : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Faz parse do HTML e retorna meta description, meta keywords e mapa de alt de imagens.
+     *
+     * @return array{meta_description: string|null, meta_keywords: string|null, image_alts: array<string, string>}
+     */
+    private function parseHtmlData(string $html): array
+    {
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="UTF-8" ?>' . $html);
+        libxml_clear_errors();
+
+        $description = null;
+        $keywords = null;
+        $imageAlts = [];
+
+        /** @var \DOMElement $meta */
+        foreach ($dom->getElementsByTagName('meta') as $meta) {
+            $name = strtolower($meta->getAttribute('name'));
+            $content = $meta->getAttribute('content');
+
+            if ($name === 'description' && $description === null && trim($content) !== '') {
+                $description = $content;
+            }
+
+            if ($name === 'keywords' && $keywords === null && trim($content) !== '') {
+                $keywords = $content;
+            }
+        }
+
+        /** @var \DOMElement $img */
+        foreach ($dom->getElementsByTagName('img') as $img) {
+            $src = $img->getAttribute('src');
+            $alt = $img->getAttribute('alt');
+            if ($src !== '' && $alt !== '') {
+                $imageAlts[$src] = $alt;
+            }
+        }
+
+        return [
+            'meta_description' => $description,
+            'meta_keywords' => $keywords,
+            'image_alts' => $imageAlts,
+        ];
     }
 
     private function fetchGeneral(string $baseUrl): array
@@ -336,6 +400,8 @@ class WebAudit extends Component
 
         $page = 1;
         $maxPages = 10;
+        $htmlFetchCount = 0;
+        $maxHtmlFetch = 30;
 
         while ($page <= $maxPages) {
             $items = $this->httpGetJson($this->wpApiUrl($baseUrl, 'wp/v2/pages'), [
@@ -360,13 +426,45 @@ class WebAudit extends Component
 
                 if (isset($p['yoast_head_json']) && is_array($p['yoast_head_json'])) {
                     $metaDescription = $p['yoast_head_json']['description'] ?? null;
-                    $metaKeywords = $p['yoast_head_json']['keywords'] ?? null;
+                    // Yoast removeu suporte a keywords — campo sempre null
                 }
 
-                if ((!is_string($metaDescription) || trim($metaDescription) === '') && is_int($id)) {
+                $needsDesc = !is_string($metaDescription) || trim($metaDescription) === '';
+                $needsKw = !is_string($metaKeywords) || trim($metaKeywords) === '';
+
+                if (($needsDesc || $needsKw) && is_int($id)) {
                     $seopress = $this->fetchSeoPressMetaForPost($baseUrl, $id);
-                    $metaDescription = $metaDescription ?: $seopress['meta_description'];
-                    $metaKeywords = $metaKeywords ?: $seopress['meta_keywords'];
+                    if ($needsDesc) {
+                        $metaDescription = $seopress['meta_description'];
+                    }
+                    if ($needsKw) {
+                        $metaKeywords = $seopress['meta_keywords'];
+                    }
+                }
+
+                // Fallback: parse do HTML da página (funciona com qualquer plugin SEO)
+                $needsDesc = !is_string($metaDescription) || trim($metaDescription) === '';
+                $needsKw = !is_string($metaKeywords) || trim($metaKeywords) === '';
+
+                if (is_string($link) && ($needsDesc || $needsKw || $htmlFetchCount < $maxHtmlFetch)) {
+                    if ($htmlFetchCount < $maxHtmlFetch) {
+                        $htmlFetchCount++;
+                        $html = $this->fetchPageHtml($link);
+                        if ($html !== null) {
+                            $htmlData = $this->parseHtmlData($html);
+
+                            if ($needsDesc) {
+                                $metaDescription = $htmlData['meta_description'];
+                            }
+                            if ($needsKw) {
+                                $metaKeywords = $htmlData['meta_keywords'];
+                            }
+
+                            foreach ($htmlData['image_alts'] as $src => $alt) {
+                                $this->htmlImageAlts[$src] = $alt;
+                            }
+                        }
+                    }
                 }
 
                 $out[] = [
@@ -388,6 +486,42 @@ class WebAudit extends Component
         }
 
         return $out;
+    }
+
+    private function enrichImageAltsFromHtml(): void
+    {
+        if (empty($this->htmlImageAlts)) {
+            return;
+        }
+
+        foreach ($this->images as &$img) {
+            if (trim((string) ($img['alt_text'] ?? '')) !== '') {
+                continue;
+            }
+
+            $url = (string) ($img['url'] ?? '');
+            if ($url === '') {
+                continue;
+            }
+
+            // Tentativa 1: URL exata
+            if (isset($this->htmlImageAlts[$url])) {
+                $img['alt_text'] = $this->htmlImageAlts[$url];
+                continue;
+            }
+
+            // Tentativa 2: ignora sufixos de tamanho do WordPress (ex: -300x200)
+            $normalized = preg_replace('/-\d+x\d+(\.[a-z]+)$/i', '$1', $url) ?? $url;
+            foreach ($this->htmlImageAlts as $src => $alt) {
+                $normalizedSrc = preg_replace('/-\d+x\d+(\.[a-z]+)$/i', '$1', $src) ?? $src;
+                if ($normalizedSrc === $normalized) {
+                    $img['alt_text'] = $alt;
+                    break;
+                }
+            }
+        }
+
+        unset($img);
     }
 
     private function computeCounters(): void
