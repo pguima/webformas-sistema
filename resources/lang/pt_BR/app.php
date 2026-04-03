@@ -25,6 +25,7 @@ return [
         'files' => 'Arquivos',
         'management' => 'Gestão',
         'campaigns' => 'Campanhas',
+        'web' => 'Web',
     ],
 
     'clients' => [

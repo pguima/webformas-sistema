@@ -26,6 +26,7 @@ class WebAudit extends Component
     /** @var array<int, array<string, mixed>> */
     public array $pages = [];
 
+    // --- Image counters ---
     public int $totalImages = 0;
 
     public int $imagesOk = 0;
@@ -36,9 +37,31 @@ class WebAudit extends Component
 
     public int $imagesWithoutAlt = 0;
 
+    public int $imagesWithoutDimensions = 0;
+
+    public int $imagesLarge = 0;
+
+    // --- Page / SEO counters ---
     public int $pagesWithoutMetaDescription = 0;
 
     public int $pagesWithoutMetaKeywords = 0;
+
+    public int $pagesWithoutH1 = 0;
+
+    public int $pagesWithoutTitleTag = 0;
+
+    public int $pagesDescriptionTooLong = 0;
+
+    public int $pagesDescriptionTooShort = 0;
+
+    public int $pagesDuplicateDescription = 0;
+
+    public int $pagesHtmlFetched = 0;
+
+    // --- WordPress info ---
+    public int $inactivePlugins = 0;
+
+    public bool $sslEnabled = false;
 
     public ?array $pageSpeed = null;
 
@@ -50,6 +73,12 @@ class WebAudit extends Component
 
     /** @var array<string, string> src => alt coletados do HTML das páginas */
     private array $htmlImageAlts = [];
+
+    /** @var array<string, list<array{url: string, title: string}>> src => páginas onde aparece */
+    private array $htmlImagePages = [];
+
+    /** @var array<string, list<array{url: string, title: string}>> image_url => páginas (público para o blade) */
+    public array $imagePageMap = [];
 
     /**
      * Namespaces/recursos detectados no /wp-json
@@ -89,6 +118,8 @@ class WebAudit extends Component
 
     public function loadAudit(): void
     {
+        @set_time_limit(180);
+
         $this->loading = true;
         $this->errorMessage = null;
         $this->general = null;
@@ -96,17 +127,30 @@ class WebAudit extends Component
         $this->pages = [];
         $this->pageSpeed = null;
         $this->pageSpeedErrors = [];
-
         $this->wpNamespaces = [];
         $this->htmlImageAlts = [];
+        $this->htmlImagePages = [];
+        $this->imagePageMap = [];
 
         $this->totalImages = 0;
         $this->imagesOk = 0;
         $this->imagesError = 0;
         $this->imagesNotWebp = 0;
         $this->imagesWithoutAlt = 0;
+        $this->imagesWithoutDimensions = 0;
+        $this->imagesLarge = 0;
+
         $this->pagesWithoutMetaDescription = 0;
         $this->pagesWithoutMetaKeywords = 0;
+        $this->pagesWithoutH1 = 0;
+        $this->pagesWithoutTitleTag = 0;
+        $this->pagesDescriptionTooLong = 0;
+        $this->pagesDescriptionTooShort = 0;
+        $this->pagesDuplicateDescription = 0;
+        $this->pagesHtmlFetched = 0;
+
+        $this->inactivePlugins = 0;
+        $this->sslEnabled = false;
 
         try {
             $this->web = Web::query()->with(['client:id,name'])->findOrFail($this->webId);
@@ -121,6 +165,7 @@ class WebAudit extends Component
             $this->images = $this->fetchImages($baseUrl);
             $this->pages = $this->fetchPages($baseUrl);
             $this->enrichImageAltsFromHtml();
+            $this->buildImagePageMap();
 
             $this->computeCounters();
         } catch (RequestException $e) {
@@ -159,9 +204,10 @@ class WebAudit extends Component
     }
 
     /**
-     * Faz parse do HTML e retorna meta description, meta keywords e mapa de alt de imagens.
+     * Faz parse do HTML e retorna meta description, meta keywords, mapa de alt de imagens,
+     * title tag, primeiro H1, URL canonical e hint de versão do WordPress.
      *
-     * @return array{meta_description: string|null, meta_keywords: string|null, image_alts: array<string, string>}
+     * @return array{meta_description: string|null, meta_keywords: string|null, image_alts: array<string, string>, title_tag: string|null, h1: string|null, canonical: string|null, wp_version_hint: string|null}
      */
     private function parseHtmlData(string $html): array
     {
@@ -173,6 +219,7 @@ class WebAudit extends Component
         $description = null;
         $keywords = null;
         $imageAlts = [];
+        $wpVersionHint = null;
 
         /** @var \DOMElement $meta */
         foreach ($dom->getElementsByTagName('meta') as $meta) {
@@ -186,14 +233,58 @@ class WebAudit extends Component
             if ($name === 'keywords' && $keywords === null && trim($content) !== '') {
                 $keywords = $content;
             }
+
+            if ($name === 'generator' && $wpVersionHint === null) {
+                if (preg_match('/WordPress\s+([\d.]+)/i', $content, $matches)) {
+                    $wpVersionHint = $matches[1];
+                }
+            }
         }
+
+        $allImageSrcs = [];
 
         /** @var \DOMElement $img */
         foreach ($dom->getElementsByTagName('img') as $img) {
             $src = $img->getAttribute('src');
             $alt = $img->getAttribute('alt');
-            if ($src !== '' && $alt !== '') {
-                $imageAlts[$src] = $alt;
+            if ($src !== '') {
+                $allImageSrcs[] = $src;
+                if ($alt !== '') {
+                    $imageAlts[$src] = $alt;
+                }
+            }
+        }
+
+        // Title tag
+        $titleTag = null;
+        $titleNodes = $dom->getElementsByTagName('title');
+        if ($titleNodes->length > 0) {
+            $text = trim($titleNodes->item(0)->textContent);
+            if ($text !== '') {
+                $titleTag = $text;
+            }
+        }
+
+        // First H1
+        $h1 = null;
+        $h1Nodes = $dom->getElementsByTagName('h1');
+        if ($h1Nodes->length > 0) {
+            $text = trim($h1Nodes->item(0)->textContent);
+            if ($text !== '') {
+                $h1 = $text;
+            }
+        }
+
+        // Canonical
+        $canonical = null;
+        /** @var \DOMElement $link */
+        foreach ($dom->getElementsByTagName('link') as $link) {
+            if (strtolower($link->getAttribute('rel')) === 'canonical') {
+                $href = $link->getAttribute('href');
+                if ($href !== '') {
+                    $canonical = $href;
+                    break;
+                }
             }
         }
 
@@ -201,6 +292,11 @@ class WebAudit extends Component
             'meta_description' => $description,
             'meta_keywords' => $keywords,
             'image_alts' => $imageAlts,
+            'image_srcs' => $allImageSrcs,
+            'title_tag' => $titleTag,
+            'h1' => $h1,
+            'canonical' => $canonical,
+            'wp_version_hint' => $wpVersionHint,
         ];
     }
 
@@ -233,6 +329,19 @@ class WebAudit extends Component
             $general['notes'][] = 'WP Version / tema / plugins podem não estar disponíveis publicamente via REST API.';
         } catch (\Throwable $e) {
             $general['notes'][] = 'Falha ao ler /wp-json: ' . $e->getMessage();
+        }
+
+        // Detecta versão do WP via meta generator na homepage
+        try {
+            $html = $this->fetchPageHtml($baseUrl);
+            if ($html !== null) {
+                $htmlData = $this->parseHtmlData($html);
+                if ($htmlData['wp_version_hint'] !== null) {
+                    $general['wp_version'] = $htmlData['wp_version_hint'];
+                }
+            }
+        } catch (\Throwable) {
+            // ignore
         }
 
         // Best-effort: plugins (normalmente requer autenticação)
@@ -370,6 +479,7 @@ class WebAudit extends Component
                 $width = $m['media_details']['width'] ?? null;
                 $height = $m['media_details']['height'] ?? null;
                 $alt = $m['alt_text'] ?? null;
+                $filesize = $m['media_details']['filesize'] ?? null;
 
                 $out[] = [
                     'id' => $m['id'] ?? null,
@@ -378,6 +488,7 @@ class WebAudit extends Component
                     'width' => $width,
                     'height' => $height,
                     'alt_text' => is_string($alt) ? $alt : null,
+                    'filesize' => is_numeric($filesize) ? (int) $filesize : null,
                 ];
             }
 
@@ -423,6 +534,10 @@ class WebAudit extends Component
 
                 $metaDescription = null;
                 $metaKeywords = null;
+                $h1 = null;
+                $titleTag = null;
+                $canonical = null;
+                $htmlFetched = false;
 
                 if (isset($p['yoast_head_json']) && is_array($p['yoast_head_json'])) {
                     $metaDescription = $p['yoast_head_json']['description'] ?? null;
@@ -442,27 +557,60 @@ class WebAudit extends Component
                     }
                 }
 
-                // Fallback: parse do HTML da página (funciona com qualquer plugin SEO)
+                // Fallback: parse do HTML da página (também extrai H1, title tag, canonical)
                 $needsDesc = !is_string($metaDescription) || trim($metaDescription) === '';
                 $needsKw = !is_string($metaKeywords) || trim($metaKeywords) === '';
 
-                if (is_string($link) && ($needsDesc || $needsKw || $htmlFetchCount < $maxHtmlFetch)) {
-                    if ($htmlFetchCount < $maxHtmlFetch) {
-                        $htmlFetchCount++;
-                        $html = $this->fetchPageHtml($link);
-                        if ($html !== null) {
-                            $htmlData = $this->parseHtmlData($html);
+                // Sempre faz fetch das primeiras $maxHtmlFetch páginas (para obter H1, title, canonical, alts)
+                if (is_string($link) && $htmlFetchCount < $maxHtmlFetch) {
+                    $htmlFetchCount++;
+                    $htmlFetched = true;
+                    $html = $this->fetchPageHtml($link);
+                    if ($html !== null) {
+                        $htmlData = $this->parseHtmlData($html);
 
-                            if ($needsDesc) {
-                                $metaDescription = $htmlData['meta_description'];
-                            }
-                            if ($needsKw) {
-                                $metaKeywords = $htmlData['meta_keywords'];
-                            }
+                        if ($needsDesc) {
+                            $metaDescription = $htmlData['meta_description'];
+                        }
+                        if ($needsKw) {
+                            $metaKeywords = $htmlData['meta_keywords'];
+                        }
 
-                            foreach ($htmlData['image_alts'] as $src => $alt) {
-                                $this->htmlImageAlts[$src] = $alt;
-                            }
+                        $h1 = $htmlData['h1'];
+                        $titleTag = $htmlData['title_tag'];
+                        $canonical = $htmlData['canonical'];
+
+                        foreach ($htmlData['image_alts'] as $src => $alt) {
+                            $this->htmlImageAlts[$src] = $alt;
+                        }
+
+                        $pageTitle = is_string($title) ? strip_tags($title) : ($link ?? '');
+                        foreach ($htmlData['image_srcs'] as $src) {
+                            $this->htmlImagePages[$src][] = ['url' => $link, 'title' => $pageTitle];
+                        }
+                    }
+                } elseif (is_string($link) && ($needsDesc || $needsKw)) {
+                    // Além do limite: só faz fetch se ainda precisa de SEO data
+                    $htmlFetchCount++;
+                    $htmlFetched = true;
+                    $html = $this->fetchPageHtml($link);
+                    if ($html !== null) {
+                        $htmlData = $this->parseHtmlData($html);
+
+                        if ($needsDesc) {
+                            $metaDescription = $htmlData['meta_description'];
+                        }
+                        if ($needsKw) {
+                            $metaKeywords = $htmlData['meta_keywords'];
+                        }
+
+                        $h1 = $htmlData['h1'];
+                        $titleTag = $htmlData['title_tag'];
+                        $canonical = $htmlData['canonical'];
+
+                        $pageTitle = is_string($title) ? strip_tags($title) : ($link ?? '');
+                        foreach ($htmlData['image_srcs'] as $src) {
+                            $this->htmlImagePages[$src][] = ['url' => $link, 'title' => $pageTitle];
                         }
                     }
                 }
@@ -475,6 +623,10 @@ class WebAudit extends Component
                     'status' => is_string($status) ? $status : null,
                     'meta_description' => is_string($metaDescription) ? $metaDescription : null,
                     'meta_keywords' => is_string($metaKeywords) ? $metaKeywords : null,
+                    'h1' => $h1,
+                    'title_tag' => $titleTag,
+                    'canonical' => $canonical,
+                    'html_fetched' => $htmlFetched,
                 ];
             }
 
@@ -524,28 +676,96 @@ class WebAudit extends Component
         unset($img);
     }
 
+    private function buildImagePageMap(): void
+    {
+        if (empty($this->htmlImagePages)) {
+            return;
+        }
+
+        foreach ($this->images as $img) {
+            $url = (string) ($img['url'] ?? '');
+            if ($url === '') {
+                continue;
+            }
+
+            $pages = [];
+
+            if (isset($this->htmlImagePages[$url])) {
+                $pages = $this->htmlImagePages[$url];
+            }
+
+            if (empty($pages)) {
+                $normalized = preg_replace('/-\d+x\d+(\.[a-z]+)$/i', '$1', $url) ?? $url;
+                foreach ($this->htmlImagePages as $src => $srcPages) {
+                    $normalizedSrc = preg_replace('/-\d+x\d+(\.[a-z]+)$/i', '$1', $src) ?? $src;
+                    if ($normalizedSrc === $normalized) {
+                        $pages = array_merge($pages, $srcPages);
+                    }
+                }
+            }
+
+            // Deduplica por URL
+            $seen = [];
+            $unique = [];
+            foreach ($pages as $p) {
+                if (!in_array($p['url'], $seen, true)) {
+                    $seen[] = $p['url'];
+                    $unique[] = $p;
+                }
+            }
+
+            if (!empty($unique)) {
+                $this->imagePageMap[$url] = $unique;
+            }
+        }
+    }
+
     private function computeCounters(): void
     {
-        $this->totalImages = count($this->images);
+        // SSL check
+        $url = (string) ($this->general['url'] ?? '');
+        $this->sslEnabled = str_starts_with($url, 'https://');
 
+        // Plugins inativos
+        if (is_array($this->general['plugins'] ?? null)) {
+            foreach ($this->general['plugins'] as $plugin) {
+                if (($plugin['status'] ?? 'inactive') !== 'active') {
+                    $this->inactivePlugins++;
+                }
+            }
+        }
+
+        // Contadores de imagens
+        $this->totalImages = count($this->images);
         $ok = 0;
         $err = 0;
         $notWebp = 0;
         $withoutAlt = 0;
+        $withoutDimensions = 0;
+        $large = 0;
 
         foreach ($this->images as $img) {
             $ext = strtolower((string) ($img['ext'] ?? ''));
             $alt = trim((string) ($img['alt_text'] ?? ''));
+            $width = $img['width'] ?? null;
+            $height = $img['height'] ?? null;
+            $filesize = $img['filesize'] ?? null;
 
             $hasWebp = $ext === 'webp';
             $hasAlt = $alt !== '';
+            $hasDimensions = $width !== null && $height !== null;
 
             if (!$hasWebp) {
                 $notWebp++;
             }
-
             if (!$hasAlt) {
                 $withoutAlt++;
+            }
+            if (!$hasDimensions) {
+                $withoutDimensions++;
+            }
+            if ($filesize !== null && $filesize > 500000) {
+                $large++;
             }
 
             if ($hasWebp && $hasAlt) {
@@ -559,25 +779,75 @@ class WebAudit extends Component
         $this->imagesError = $err;
         $this->imagesNotWebp = $notWebp;
         $this->imagesWithoutAlt = $withoutAlt;
+        $this->imagesWithoutDimensions = $withoutDimensions;
+        $this->imagesLarge = $large;
 
+        // Contadores de páginas
         $pagesNoDesc = 0;
         $pagesNoKeywords = 0;
+        $pagesNoH1 = 0;
+        $pagesNoTitleTag = 0;
+        $pagesDescTooLong = 0;
+        $pagesDescTooShort = 0;
+        $htmlFetched = 0;
+
+        $descriptionCounts = [];
 
         foreach ($this->pages as $p) {
             $desc = trim((string) ($p['meta_description'] ?? ''));
             $keywords = trim((string) ($p['meta_keywords'] ?? ''));
+            $fetched = (bool) ($p['html_fetched'] ?? false);
+
+            if ($fetched) {
+                $htmlFetched++;
+            }
 
             if ($desc === '') {
                 $pagesNoDesc++;
+            } else {
+                $len = mb_strlen($desc);
+                if ($len > 160) {
+                    $pagesDescTooLong++;
+                } elseif ($len < 50) {
+                    $pagesDescTooShort++;
+                }
+                $descriptionCounts[$desc] = ($descriptionCounts[$desc] ?? 0) + 1;
             }
 
             if ($keywords === '') {
                 $pagesNoKeywords++;
             }
+
+            // H1 e title_tag só são confiáveis quando o HTML foi buscado
+            if ($fetched) {
+                $h1 = trim((string) ($p['h1'] ?? ''));
+                $titleTag = trim((string) ($p['title_tag'] ?? ''));
+
+                if ($h1 === '') {
+                    $pagesNoH1++;
+                }
+                if ($titleTag === '') {
+                    $pagesNoTitleTag++;
+                }
+            }
+        }
+
+        // Páginas com description duplicada (conta cada página afetada)
+        $duplicateDescs = 0;
+        foreach ($descriptionCounts as $count) {
+            if ($count > 1) {
+                $duplicateDescs += $count;
+            }
         }
 
         $this->pagesWithoutMetaDescription = $pagesNoDesc;
         $this->pagesWithoutMetaKeywords = $pagesNoKeywords;
+        $this->pagesWithoutH1 = $pagesNoH1;
+        $this->pagesWithoutTitleTag = $pagesNoTitleTag;
+        $this->pagesDescriptionTooLong = $pagesDescTooLong;
+        $this->pagesDescriptionTooShort = $pagesDescTooShort;
+        $this->pagesDuplicateDescription = $duplicateDescs;
+        $this->pagesHtmlFetched = $htmlFetched;
     }
 
     private function baseUrlOrNull(): ?string

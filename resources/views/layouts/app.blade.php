@@ -72,6 +72,7 @@
                             'items' => [
                                 ['url' => '/users', 'icon' => 'solar:users-group-rounded-linear', 'label' => 'app.sidebar.users'],
                                 ['url' => '/clients', 'icon' => 'solar:buildings-2-linear', 'label' => 'app.sidebar.clients'],
+                                ['url' => '/web', 'icon' => 'solar:global-linear', 'label' => 'app.sidebar.web'],
                                 ['url' => '/services', 'icon' => 'solar:tag-price-linear', 'label' => 'app.sidebar.services'],
                                 ['url' => '/plans', 'icon' => 'solar:bookmark-linear', 'label' => 'app.sidebar.plans'],
                                 ['url' => '/widgets', 'icon' => 'solar:widget-4-linear', 'label' => 'app.sidebar.widgets'],

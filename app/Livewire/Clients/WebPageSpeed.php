@@ -3,6 +3,7 @@
 namespace App\Livewire\Clients;
 
 use App\Models\Web;
+use App\Models\WebPagespeedHistory;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -23,6 +24,9 @@ class WebPageSpeed extends Component
     public array $pageSpeedErrors = [];
 
     public ?string $pageSpeedLastRunAt = null;
+
+    /** @var array<int, array<string, mixed>> */
+    public array $history = [];
 
     public function mount(int $webId): void
     {
@@ -51,6 +55,20 @@ class WebPageSpeed extends Component
     private function baseUrlOrNull(): ?string
     {
         return $this->normalizeBaseUrl($this->web?->url);
+    }
+
+    private function normalizeScore(mixed $value): ?int
+    {
+        if (!is_numeric($value)) {
+            return null;
+        }
+
+        $v = (float) $value;
+        if ($v <= 1) {
+            $v *= 100;
+        }
+
+        return max(0, min(100, (int) round($v)));
     }
 
     private function buildPageSpeedUrl(string $baseUrl, string $strategy): string
@@ -99,12 +117,29 @@ class WebPageSpeed extends Component
             return is_numeric($v) ? (float) $v : null;
         };
 
-        $fcpMs = $this->auditNumeric($audits, 'first-contentful-paint');
-        $lcpMs = $this->auditNumeric($audits, 'largest-contentful-paint');
-        $tbtMs = $this->auditNumeric($audits, 'total-blocking-time');
-        $cls = $this->auditNumeric($audits, 'cumulative-layout-shift');
-        $speedIndexMs = $this->auditNumeric($audits, 'speed-index');
-        $ttfbMs = $this->auditNumeric($audits, 'server-response-time');
+        // Oportunidades: audits com details.type === 'opportunity' e score < 1
+        $opportunities = [];
+        foreach ($audits as $auditId => $audit) {
+            if (($audit['details']['type'] ?? '') !== 'opportunity') {
+                continue;
+            }
+
+            $auditScore = isset($audit['score']) && is_numeric($audit['score']) ? (float) $audit['score'] : null;
+            if ($auditScore === null || $auditScore >= 1.0) {
+                continue;
+            }
+
+            $savingsMs = $audit['details']['overallSavingsMs'] ?? null;
+            $opportunities[] = [
+                'id' => $auditId,
+                'title' => $audit['title'] ?? $auditId,
+                'display_value' => $audit['displayValue'] ?? null,
+                'score' => $auditScore,
+                'savings_ms' => is_numeric($savingsMs) ? (int) round((float) $savingsMs) : null,
+            ];
+        }
+
+        usort($opportunities, fn($a, $b) => ($b['savings_ms'] ?? 0) <=> ($a['savings_ms'] ?? 0));
 
         return [
             'scores' => [
@@ -114,12 +149,13 @@ class WebPageSpeed extends Component
                 'best_practices' => $score('best-practices'),
             ],
             'metrics' => [
-                'fcp_ms' => $fcpMs,
-                'lcp_ms' => $lcpMs,
-                'tbt_ms' => $tbtMs,
-                'cls' => $cls,
-                'ttfb_ms' => $ttfbMs,
-                'speed_index_ms' => $speedIndexMs,
+                'fcp_ms' => $this->auditNumeric($audits, 'first-contentful-paint'),
+                'lcp_ms' => $this->auditNumeric($audits, 'largest-contentful-paint'),
+                'tbt_ms' => $this->auditNumeric($audits, 'total-blocking-time'),
+                'cls' => $this->auditNumeric($audits, 'cumulative-layout-shift'),
+                'ttfb_ms' => $this->auditNumeric($audits, 'server-response-time'),
+                'speed_index_ms' => $this->auditNumeric($audits, 'speed-index'),
+                'inp_ms' => $this->auditNumeric($audits, 'interaction-to-next-paint'),
             ],
             'display' => [
                 'fcp' => $this->auditDisplay($audits, 'first-contentful-paint'),
@@ -128,7 +164,9 @@ class WebPageSpeed extends Component
                 'cls' => $this->auditDisplay($audits, 'cumulative-layout-shift'),
                 'ttfb' => $this->auditDisplay($audits, 'server-response-time'),
                 'speed_index' => $this->auditDisplay($audits, 'speed-index'),
+                'inp' => $this->auditDisplay($audits, 'interaction-to-next-paint'),
             ],
+            'opportunities' => $opportunities,
         ];
     }
 
@@ -151,6 +189,12 @@ class WebPageSpeed extends Component
             if ($this->web->pagespeed_last_checked_at) {
                 $this->pageSpeedLastRunAt = $this->web->pagespeed_last_checked_at->format('d/m/Y H:i');
             }
+
+            $this->history = WebPagespeedHistory::where('web_id', $this->webId)
+                ->orderBy('analyzed_at', 'desc')
+                ->limit(10)
+                ->get()
+                ->toArray();
         } catch (RequestException $e) {
             $this->errorMessage = $e->getMessage();
         } catch (\Throwable $e) {
@@ -233,47 +277,53 @@ class WebPageSpeed extends Component
         }
 
         $this->pageSpeed = !empty($out) ? $out : null;
+
         if ($this->pageSpeed) {
             $this->pageSpeedLastRunAt = now()->format('d/m/Y H:i');
 
             $desktopScores = $this->pageSpeed['desktop']['scores'] ?? null;
             if (is_array($desktopScores)) {
-                $toInt = function ($value): ?int {
-                    if (!is_numeric($value)) {
-                        return null;
-                    }
-
-                    $v = (float) $value;
-                    if ($v <= 1) {
-                        $v *= 100;
-                    }
-
-                    $v = (int) round($v);
-                    if ($v < 0) {
-                        $v = 0;
-                    }
-                    if ($v > 100) {
-                        $v = 100;
-                    }
-
-                    return $v;
-                };
-
                 try {
                     $this->web?->update([
-                        'performance' => $toInt($desktopScores['performance'] ?? null),
-                        'seo' => $toInt($desktopScores['seo'] ?? null),
-                        'accessibility' => $toInt($desktopScores['accessibility'] ?? null),
-                        'best_practices' => $toInt($desktopScores['best_practices'] ?? null),
+                        'performance' => $this->normalizeScore($desktopScores['performance'] ?? null),
+                        'seo' => $this->normalizeScore($desktopScores['seo'] ?? null),
+                        'accessibility' => $this->normalizeScore($desktopScores['accessibility'] ?? null),
+                        'best_practices' => $this->normalizeScore($desktopScores['best_practices'] ?? null),
                         'pagespeed_last_checked_at' => now(),
                     ]);
 
                     $this->web?->refresh();
-
                     $this->dispatch('client-webs-refresh');
                 } catch (\Throwable $e) {
                     $this->dispatch('notify', message: $e->getMessage(), variant: 'danger', title: 'Erro');
                 }
+            }
+
+            // Salva histórico (não-crítico: falha silenciosa)
+            try {
+                $mobileScores = $this->pageSpeed['mobile']['scores'] ?? [];
+                $desktopScores = $this->pageSpeed['desktop']['scores'] ?? [];
+
+                WebPagespeedHistory::create([
+                    'web_id' => $this->webId,
+                    'performance_mobile' => $this->normalizeScore($mobileScores['performance'] ?? null),
+                    'seo_mobile' => $this->normalizeScore($mobileScores['seo'] ?? null),
+                    'accessibility_mobile' => $this->normalizeScore($mobileScores['accessibility'] ?? null),
+                    'best_practices_mobile' => $this->normalizeScore($mobileScores['best_practices'] ?? null),
+                    'performance_desktop' => $this->normalizeScore($desktopScores['performance'] ?? null),
+                    'seo_desktop' => $this->normalizeScore($desktopScores['seo'] ?? null),
+                    'accessibility_desktop' => $this->normalizeScore($desktopScores['accessibility'] ?? null),
+                    'best_practices_desktop' => $this->normalizeScore($desktopScores['best_practices'] ?? null),
+                    'analyzed_at' => now(),
+                ]);
+
+                $this->history = WebPagespeedHistory::where('web_id', $this->webId)
+                    ->orderBy('analyzed_at', 'desc')
+                    ->limit(10)
+                    ->get()
+                    ->toArray();
+            } catch (\Throwable) {
+                // histórico não-crítico
             }
         }
     }

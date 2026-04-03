@@ -23,6 +23,7 @@ return [
         'settings' => 'Settings',
         'system' => 'System',
         'design_system' => 'Design System',
+        'web' => 'Web',
     ],
 
     'clients' => [

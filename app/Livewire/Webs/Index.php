@@ -5,6 +5,7 @@ namespace App\Livewire\Webs;
 use App\Livewire\Concerns\HasViewMode;
 use App\Models\Client;
 use App\Models\Web;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,7 +13,19 @@ class Index extends Component
 {
     use WithPagination, HasViewMode;
 
+    #[On('client-webs-refresh')]
+    public function refreshList(): void
+    {
+        // no-op: força re-render após atualização de pagespeed
+    }
+
     public string $search = '';
+
+    public ?int $auditWebId = null;
+
+    public ?int $pagespeedWebId = null;
+
+    public bool $pagespeedOffcanvasOpen = false;
 
     public int $perPage = 10;
 
@@ -64,6 +77,31 @@ class Index extends Component
     public ?int $webToDeleteId = null;
 
     public string $deleteConfirmation = '';
+
+    public function audit(int $id): void
+    {
+        $web = Web::query()->select(['id'])->find($id);
+
+        if (!$web) {
+            return;
+        }
+
+        $this->auditWebId = $web->id;
+        $this->dispatch('open-web-audit-offcanvas');
+    }
+
+    public function pagespeed(int $id): void
+    {
+        $web = Web::query()->select(['id'])->find($id);
+
+        if (!$web) {
+            return;
+        }
+
+        $this->pagespeedWebId = $web->id;
+        $this->pagespeedOffcanvasOpen = true;
+        $this->dispatch('open-web-pagespeed-offcanvas');
+    }
 
     public function rules(): array
     {
@@ -238,7 +276,9 @@ class Index extends Component
             ->with('client:id,name')
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('url', 'like', '%' . $this->search . '%');
+                    ->orWhere('url', 'like', '%' . $this->search . '%')
+                    ->orWhere('platform', 'like', '%' . $this->search . '%')
+                    ->orWhere('responsible', 'like', '%' . $this->search . '%');
             })
             ->latest()
             ->paginate($this->perPage);

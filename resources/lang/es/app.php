@@ -24,6 +24,7 @@ return [
         'system' => 'Sistema',
         'design_system' => 'Sistema de Diseño',
         'campaigns' => 'Campañas',
+        'web' => 'Web',
     ],
 
     'clients' => [
