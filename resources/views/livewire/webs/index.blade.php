@@ -1,8 +1,4 @@
-<div
-    class="space-y-6"
-    x-data="{}"
-    x-on:client-web-tab-activated.window="$wire.set('pagespeedOffcanvasOpen', false); $wire.set('pagespeedWebId', null)"
->
+<div class="space-y-6">
     @php
         $scoreVariantInt = function ($score) {
             if ($score === null || $score === '') return 'secondary';
@@ -82,38 +78,17 @@
                                 type="button"
                                 size="icon"
                                 variant="ghost"
-                                icon="solar:shield-check-linear"
-                                title="Auditoria"
-                                wire:click="audit({{ $web->id }})"
+                                icon="solar:chart-2-linear"
+                                title="Análise"
+                                wire:click="analyze({{ $web->id }})"
                                 wire:loading.attr="disabled"
                                 wire:loading.class="opacity-60 cursor-wait"
-                                wire:target="audit({{ $web->id }})"
+                                wire:target="analyze({{ $web->id }})"
                                 class="relative"
                             >
                                 <span
                                     wire:loading
-                                    wire:target="audit({{ $web->id }})"
-                                    class="absolute inset-0 flex items-center justify-center"
-                                >
-                                    <x-ds::spinner size="sm" variant="secondary" />
-                                </span>
-                            </x-ds::button>
-
-                            <x-ds::button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                icon="solar:graph-new-linear"
-                                title="PageSpeed"
-                                wire:click="pagespeed({{ $web->id }})"
-                                wire:loading.attr="disabled"
-                                wire:loading.class="opacity-60 cursor-wait"
-                                wire:target="pagespeed({{ $web->id }})"
-                                class="relative"
-                            >
-                                <span
-                                    wire:loading
-                                    wire:target="pagespeed({{ $web->id }})"
+                                    wire:target="analyze({{ $web->id }})"
                                     class="absolute inset-0 flex items-center justify-center"
                                 >
                                     <x-ds::spinner size="sm" variant="secondary" />
@@ -222,38 +197,17 @@
                                     type="button"
                                     size="icon"
                                     variant="ghost"
-                                    icon="solar:shield-check-linear"
-                                    title="Auditoria"
-                                    wire:click="audit({{ $web->id }})"
+                                    icon="solar:chart-2-linear"
+                                    title="Análise"
+                                    wire:click="analyze({{ $web->id }})"
                                     wire:loading.attr="disabled"
                                     wire:loading.class="opacity-60 cursor-wait"
-                                    wire:target="audit({{ $web->id }})"
+                                    wire:target="analyze({{ $web->id }})"
                                     class="relative"
                                 >
                                     <span
                                         wire:loading
-                                        wire:target="audit({{ $web->id }})"
-                                        class="absolute inset-0 flex items-center justify-center"
-                                    >
-                                        <x-ds::spinner size="sm" variant="secondary" />
-                                    </span>
-                                </x-ds::button>
-
-                                <x-ds::button
-                                    type="button"
-                                    size="icon"
-                                    variant="ghost"
-                                    icon="solar:graph-new-linear"
-                                    title="PageSpeed"
-                                    wire:click="pagespeed({{ $web->id }})"
-                                    wire:loading.attr="disabled"
-                                    wire:loading.class="opacity-60 cursor-wait"
-                                    wire:target="pagespeed({{ $web->id }})"
-                                    class="relative"
-                                >
-                                    <span
-                                        wire:loading
-                                        wire:target="pagespeed({{ $web->id }})"
+                                        wire:target="analyze({{ $web->id }})"
                                         class="absolute inset-0 flex items-center justify-center"
                                     >
                                         <x-ds::spinner size="sm" variant="secondary" />
@@ -354,6 +308,17 @@
                 <x-ds::input label="{{ __('app.webs.form.seo_score') }}" wire:model="seo_score" type="number" :error="$errors->first('seo_score')" />
             </div>
 
+            <div>
+                <label class="block text-sm font-medium text-(--text-secondary) mb-1">Análise PageSpeed agendada</label>
+                <select wire:model="pagespeed_schedule" class="w-full rounded-lg border border-(--border-default) bg-(--surface-input) px-3 py-2 text-sm text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand-primary)">
+                    <option value="none">Sem agendamento</option>
+                    <option value="daily">Diário</option>
+                    <option value="weekly">Semanal</option>
+                    <option value="monthly">Mensal</option>
+                </select>
+                <p class="mt-1 text-xs text-(--text-muted)">O sistema rodará o PageSpeed automaticamente na frequência escolhida.</p>
+            </div>
+
             <x-ds::textarea label="{{ __('app.webs.form.notes') }}" wire:model="notes" :error="$errors->first('notes')" rows="4" />
 
             <div class="pt-4 flex justify-end gap-2">
@@ -367,34 +332,17 @@
     </x-ds::offcanvas>
 
     <x-ds::offcanvas
-        id="web-audit-offcanvas"
+        id="web-analysis-offcanvas"
         x-data="{ open: false }"
-        x-on:open-web-audit-offcanvas.window="open = true"
-        x-on:close-web-audit-offcanvas.window="open = false"
-        title="Auditoria"
-        description="Auditoria técnica do WordPress."
+        x-on:open-web-analysis-offcanvas.window="open = true"
+        x-on:close-web-analysis-offcanvas.window="open = false"
+        title="Análise do Site"
+        description="PageSpeed, SEO, segurança, schema, GEO e muito mais."
         position="right"
         size="full"
     >
-        @if($auditWebId)
-            <livewire:clients.web-audit :webId="$auditWebId" :key="'web-audit-' . $auditWebId" />
-        @else
-            <div class="text-sm text-(--text-secondary)">{{ __('app.common.dash') }}</div>
-        @endif
-    </x-ds::offcanvas>
-
-    <x-ds::offcanvas
-        id="web-pagespeed-offcanvas"
-        x-data="{ open: $wire.entangle('pagespeedOffcanvasOpen') }"
-        x-on:open-web-pagespeed-offcanvas.window="open = true"
-        x-on:close-web-pagespeed-offcanvas.window="open = false"
-        title="PageSpeed"
-        description="Dashboard e detalhes do PageSpeed Insights."
-        position="right"
-        size="full"
-    >
-        @if($pagespeedWebId)
-            <livewire:clients.web-page-speed :webId="$pagespeedWebId" :key="'web-pagespeed-' . $pagespeedWebId" />
+        @if($analysisWebId)
+            <livewire:clients.web-analysis :webId="$analysisWebId" :key="'web-analysis-' . $analysisWebId" />
         @else
             <div class="text-sm text-(--text-secondary)">{{ __('app.common.dash') }}</div>
         @endif

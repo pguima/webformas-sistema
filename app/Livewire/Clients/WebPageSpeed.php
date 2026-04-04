@@ -28,6 +28,9 @@ class WebPageSpeed extends Component
     /** @var array<int, array<string, mixed>> */
     public array $history = [];
 
+    /** @var array<int, array<string, mixed>> Ordered chronologically (oldest first) for charts */
+    public array $chartHistory = [];
+
     public function mount(int $webId): void
     {
         $this->webId = $webId;
@@ -195,6 +198,12 @@ class WebPageSpeed extends Component
                 ->limit(10)
                 ->get()
                 ->toArray();
+
+            $this->chartHistory = WebPagespeedHistory::where('web_id', $this->webId)
+                ->orderBy('analyzed_at', 'asc')
+                ->limit(50)
+                ->get(['analyzed_at', 'performance_mobile', 'performance_desktop', 'seo_mobile', 'seo_desktop', 'accessibility_mobile', 'accessibility_desktop', 'best_practices_mobile', 'best_practices_desktop'])
+                ->toArray();
         } catch (RequestException $e) {
             $this->errorMessage = $e->getMessage();
         } catch (\Throwable $e) {
@@ -321,6 +330,12 @@ class WebPageSpeed extends Component
                     ->orderBy('analyzed_at', 'desc')
                     ->limit(10)
                     ->get()
+                    ->toArray();
+
+                $this->chartHistory = WebPagespeedHistory::where('web_id', $this->webId)
+                    ->orderBy('analyzed_at', 'asc')
+                    ->limit(50)
+                    ->get(['analyzed_at', 'performance_mobile', 'performance_desktop', 'seo_mobile', 'seo_desktop', 'accessibility_mobile', 'accessibility_desktop', 'best_practices_mobile', 'best_practices_desktop'])
                     ->toArray();
             } catch (\Throwable) {
                 // histórico não-crítico

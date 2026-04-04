@@ -21,11 +21,7 @@ class Webs extends Component
 
     public Client $client;
 
-    public ?int $auditWebId = null;
-
-    public ?int $pagespeedWebId = null;
-
-    public bool $pagespeedOffcanvasOpen = false;
+    public ?int $analysisWebId = null;
 
     public string $search = '';
 
@@ -34,12 +30,9 @@ class Webs extends Component
     public function mount(Client $client): void
     {
         $this->client = $client;
-
-        $this->pagespeedOffcanvasOpen = false;
-        $this->pagespeedWebId = null;
     }
 
-    public function audit(int $id): void
+    public function analyze(int $id): void
     {
         $web = Web::query()
             ->where('client_id', $this->client->id)
@@ -50,24 +43,8 @@ class Webs extends Component
             return;
         }
 
-        $this->auditWebId = $web->id;
-        $this->dispatch('open-client-web-audit-offcanvas');
-    }
-
-    public function pagespeed(int $id): void
-    {
-        $web = Web::query()
-            ->where('client_id', $this->client->id)
-            ->select(['id'])
-            ->find($id);
-
-        if (! $web) {
-            return;
-        }
-
-        $this->pagespeedWebId = $web->id;
-        $this->pagespeedOffcanvasOpen = true;
-        $this->dispatch('open-client-web-pagespeed-offcanvas');
+        $this->analysisWebId = $web->id;
+        $this->dispatch('open-client-web-analysis-offcanvas');
     }
 
     public function updatedSearch(): void

@@ -32,6 +32,7 @@ class Web extends Model
         'accessibility',
         'best_practices',
         'pagespeed_last_checked_at',
+        'pagespeed_schedule',
         'notes',
     ];
 

@@ -159,6 +159,97 @@
         </div>
     </div>
 
+    {{-- Gráfico de evolução histórica --}}
+    @if(count($chartHistory) >= 2)
+        <x-ds::card title="Evolução histórica" description="Performance e SEO ao longo das últimas análises.">
+            @php
+                $chartLabels = array_map(fn($r) => \Carbon\Carbon::parse($r['analyzed_at'])->format('d/m H:i'), $chartHistory);
+                $chartSeries = [
+                    ['name' => 'Perf Desktop',  'data' => array_column($chartHistory, 'performance_desktop')],
+                    ['name' => 'Perf Mobile',   'data' => array_column($chartHistory, 'performance_mobile')],
+                    ['name' => 'SEO Desktop',   'data' => array_column($chartHistory, 'seo_desktop')],
+                    ['name' => 'SEO Mobile',    'data' => array_column($chartHistory, 'seo_mobile')],
+                    ['name' => 'A11y Desktop',  'data' => array_column($chartHistory, 'accessibility_desktop')],
+                    ['name' => 'BP Desktop',    'data' => array_column($chartHistory, 'best_practices_desktop')],
+                ];
+            @endphp
+
+            <div
+                x-data="{
+                    chart: null,
+                    series: {{ Js::from($chartSeries) }},
+                    labels: {{ Js::from($chartLabels) }},
+                    isDark: document.documentElement.classList.contains('dark'),
+                    colors: ['#3b82f6','#93c5fd','#10b981','#6ee7b7','#f59e0b','#8b5cf6'],
+                    init() {
+                        this.renderChart();
+                        this.$watch('series', () => {
+                            this.chart?.destroy();
+                            this.renderChart();
+                        });
+                        window.addEventListener('livewire:morph', () => {
+                            this.isDark = document.documentElement.classList.contains('dark');
+                            this.chart?.destroy();
+                            this.renderChart();
+                        });
+                    },
+                    renderChart() {
+                        const options = {
+                            chart: {
+                                type: 'line',
+                                height: 280,
+                                toolbar: { show: false },
+                                zoom: { enabled: false },
+                                background: 'transparent',
+                                animations: { enabled: true, speed: 400 },
+                            },
+                            theme: { mode: this.isDark ? 'dark' : 'light' },
+                            series: this.series,
+                            xaxis: {
+                                categories: this.labels,
+                                labels: { style: { fontSize: '11px' } },
+                                tickPlacement: 'on',
+                            },
+                            yaxis: {
+                                min: 0,
+                                max: 100,
+                                tickAmount: 5,
+                                labels: { style: { fontSize: '11px' }, formatter: (v) => v + '' },
+                            },
+                            colors: this.colors,
+                            stroke: { curve: 'smooth', width: 2 },
+                            markers: { size: this.series[0].data.length <= 10 ? 4 : 0 },
+                            legend: { position: 'top', fontSize: '12px', horizontalAlign: 'left' },
+                            grid: {
+                                borderColor: this.isDark ? '#374151' : '#e5e7eb',
+                                strokeDashArray: 4,
+                            },
+                            tooltip: {
+                                shared: true,
+                                intersect: false,
+                                y: { formatter: (v) => (v ?? '—') + (v !== null ? '' : '') },
+                            },
+                            annotations: {
+                                yaxis: [
+                                    { y: 90, borderColor: '#10b981', strokeDashArray: 4, label: { text: 'Bom (90)', style: { fontSize: '10px', color: '#10b981' } } },
+                                    { y: 50, borderColor: '#f59e0b', strokeDashArray: 4, label: { text: 'Atenção (50)', style: { fontSize: '10px', color: '#f59e0b' } } },
+                                ],
+                            },
+                        };
+                        this.chart = new ApexCharts(this.$refs.chartEl, options);
+                        this.chart.render();
+                    }
+                }"
+            >
+                <div x-ref="chartEl" class="w-full"></div>
+            </div>
+        </x-ds::card>
+    @elseif(count($chartHistory) === 1)
+        <x-ds::card>
+            <div class="py-4 text-center text-sm text-(--text-muted)">Execute mais uma análise para ver o gráfico de evolução.</div>
+        </x-ds::card>
+    @endif
+
     {{-- Comparativo Mobile vs Desktop (somente quando há resultado fresco) --}}
     @if($pageSpeed)
         <x-ds::card title="Comparativo Mobile vs Desktop" description="Diferença de pontuação entre os dois dispositivos.">

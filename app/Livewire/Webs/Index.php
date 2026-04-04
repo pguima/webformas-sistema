@@ -21,11 +21,7 @@ class Index extends Component
 
     public string $search = '';
 
-    public ?int $auditWebId = null;
-
-    public ?int $pagespeedWebId = null;
-
-    public bool $pagespeedOffcanvasOpen = false;
+    public ?int $analysisWebId = null;
 
     public int $perPage = 10;
 
@@ -68,6 +64,8 @@ class Index extends Component
 
     public $seo_score = null;
 
+    public ?string $pagespeed_schedule = 'none';
+
     public ?string $notes = null;
 
     /** @var array<int, array<string, mixed>> */
@@ -78,7 +76,7 @@ class Index extends Component
 
     public string $deleteConfirmation = '';
 
-    public function audit(int $id): void
+    public function analyze(int $id): void
     {
         $web = Web::query()->select(['id'])->find($id);
 
@@ -86,21 +84,8 @@ class Index extends Component
             return;
         }
 
-        $this->auditWebId = $web->id;
-        $this->dispatch('open-web-audit-offcanvas');
-    }
-
-    public function pagespeed(int $id): void
-    {
-        $web = Web::query()->select(['id'])->find($id);
-
-        if (!$web) {
-            return;
-        }
-
-        $this->pagespeedWebId = $web->id;
-        $this->pagespeedOffcanvasOpen = true;
-        $this->dispatch('open-web-pagespeed-offcanvas');
+        $this->analysisWebId = $web->id;
+        $this->dispatch('open-web-analysis-offcanvas');
     }
 
     public function rules(): array
@@ -122,6 +107,8 @@ class Index extends Component
             'pagespeed_mobile' => ['nullable', 'integer', 'min:0', 'max:100'],
             'pagespeed_desktop' => ['nullable', 'integer', 'min:0', 'max:100'],
             'seo_score' => ['nullable', 'integer', 'min:0', 'max:100'],
+
+            'pagespeed_schedule' => ['nullable', 'string', 'in:none,daily,weekly,monthly'],
 
             'notes' => ['nullable', 'string'],
         ];
@@ -149,6 +136,7 @@ class Index extends Component
                 'pagespeed_mobile',
                 'pagespeed_desktop',
                 'seo_score',
+                'pagespeed_schedule',
                 'notes',
             ])
             ->find($id);
@@ -171,6 +159,7 @@ class Index extends Component
             'pagespeed_mobile' => $web->pagespeed_mobile,
             'pagespeed_desktop' => $web->pagespeed_desktop,
             'seo_score' => $web->seo_score,
+            'pagespeed_schedule' => $web->pagespeed_schedule ?? 'none',
             'notes' => $web->notes,
         ];
     }
@@ -202,6 +191,7 @@ class Index extends Component
         $this->pagespeed_mobile = $web->pagespeed_mobile;
         $this->pagespeed_desktop = $web->pagespeed_desktop;
         $this->seo_score = $web->seo_score;
+        $this->pagespeed_schedule = $web->pagespeed_schedule ?? 'none';
         $this->notes = $web->notes;
     }
 
@@ -237,6 +227,7 @@ class Index extends Component
             'pagespeed_mobile',
             'pagespeed_desktop',
             'seo_score',
+            'pagespeed_schedule',
             'notes',
         ]);
     }
