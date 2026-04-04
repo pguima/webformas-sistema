@@ -74,35 +74,40 @@
 
 /* ============================================
    LIGHT MODE - Design Tokens
+   Brand: Webformas — Rainbow Chameleon
+   Primary: Violet #7C3AED
    ============================================ */
 :root {
-    /* Primary Colors */
-    --color-primary: #009d46;
-    --color-primary-hover: #008a3d;
-    --color-primary-light: #E6F5ED;
-    --color-primary-dark: #007a35;
+    /* Primary Colors — Violet */
+    --color-primary: #7C3AED;
+    --color-primary-hover: #6D28D9;
+    --color-primary-light: #EDE9FE;
+    --color-primary-dark: #5B21B6;
+
+    /* Brand gradient (use in special accents) */
+    --brand-gradient: linear-gradient(135deg, #7C3AED 0%, #2563EB 50%, #06B6D4 100%);
 
     /* Surface Colors */
-    --surface-page: #FAFAFA;
+    --surface-page: #F9F8FF;
     --surface-card: #FFFFFF;
     --surface-sidebar: var(--surface-card);
     --surface-elevated: #FFFFFF;
-    --surface-hover: #F5F5F5;
-    --surface-selected: #E6F5ED;
+    --surface-hover: #F3F0FF;
+    --surface-selected: #EDE9FE;
 
     /* Text Colors */
-    --text-primary: #1A1A1A;
-    --text-secondary: #6B6B6B;
-    --text-muted: #9E9E9E;
+    --text-primary: #1A1023;
+    --text-secondary: #6B6880;
+    --text-muted: #A09CB0;
     --text-on-primary: #FFFFFF;
     --text-on-dark: #FFFFFF;
-    --text-link: #009d46;
+    --text-link: #7C3AED;
 
     /* Border Colors */
-    --border-default: #E5E5E5;
-    --border-subtle: #F0F0F0;
-    --border-focus: #009d46;
-    --border-hover: #D4D4D4;
+    --border-default: #E4E0F0;
+    --border-subtle: #EEEBf8;
+    --border-focus: #7C3AED;
+    --border-hover: #C4BEDD;
 
     /* Status Colors */
     --status-success: #10B981;
@@ -113,10 +118,11 @@
     --status-error-light: #FEE2E2;
     --status-info: #3B82F6;
     --status-info-light: #DBEAFE;
+    --status-danger: var(--status-error);
 
     /* Tag Colors */
-    --tag-purple: #E6F5ED;
-    --tag-purple-text: #009d46;
+    --tag-purple: #EDE9FE;
+    --tag-purple-text: #7C3AED;
     --tag-green: #D1FAE5;
     --tag-green-text: #059669;
     --tag-blue: #DBEAFE;
@@ -128,12 +134,12 @@
     --tag-red: #FEE2E2;
     --tag-red-text: #DC2626;
 
-    /* Shadows */
-    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+    /* Shadows — slight violet tint */
+    --shadow-xs: 0 1px 2px 0 rgba(100, 60, 180, 0.06);
+    --shadow-sm: 0 1px 3px 0 rgba(100, 60, 180, 0.09), 0 1px 2px -1px rgba(100, 60, 180, 0.09);
+    --shadow-md: 0 4px 6px -1px rgba(100, 60, 180, 0.09), 0 2px 4px -2px rgba(100, 60, 180, 0.09);
+    --shadow-lg: 0 10px 15px -3px rgba(100, 60, 180, 0.09), 0 4px 6px -4px rgba(100, 60, 180, 0.09);
+    --shadow-xl: 0 20px 25px -5px rgba(100, 60, 180, 0.09), 0 8px 10px -6px rgba(100, 60, 180, 0.09);
 
     /* Opacity States */
     --opacity-disabled: 0.4;
@@ -154,39 +160,48 @@
     --ds-border: var(--border-default);
     --ds-muted-foreground: var(--text-secondary);
     --ds-shadow-sm: var(--shadow-sm);
+
+    /* Alias for design system */
+    --brand-primary: var(--color-primary);
+    --brand-subtle: var(--color-primary-light);
 }
 
 /* ============================================
    DARK MODE - Design Tokens
+   Brand: Webformas — Rainbow Chameleon
+   Primary: Violet #A78BFA (luminous on dark)
    ============================================ */
 .dark {
-    /* Primary Colors */
-    --color-primary: #34D399;
-    --color-primary-hover: #4ADE80;
-    --color-primary-light: #064E3B;
-    --color-primary-dark: #10B981;
+    /* Primary Colors — Violet luminous */
+    --color-primary: #A78BFA;
+    --color-primary-hover: #C4B5FD;
+    --color-primary-light: #2D1F5E;
+    --color-primary-dark: #7C3AED;
 
-    /* Surface Colors */
-    --surface-page: #0F0F12;
-    --surface-card: #1A1A1F;
+    /* Brand gradient */
+    --brand-gradient: linear-gradient(135deg, #A78BFA 0%, #60A5FA 50%, #22D3EE 100%);
+
+    /* Surface Colors — deep with violet undertone */
+    --surface-page: #0C0A14;
+    --surface-card: #141020;
     --surface-sidebar: var(--surface-card);
-    --surface-elevated: #1F1F26;
-    --surface-hover: #252529;
-    --surface-selected: #064E3B;
+    --surface-elevated: #1A1530;
+    --surface-hover: #1E1A30;
+    --surface-selected: #2D1F5E;
 
     /* Text Colors */
-    --text-primary: #F5F5F7;
-    --text-secondary: #A1A1AA;
-    --text-muted: #71717A;
+    --text-primary: #F0EEFF;
+    --text-secondary: #9D98B8;
+    --text-muted: #6B6585;
     --text-on-primary: #FFFFFF;
     --text-on-dark: #FFFFFF;
-    --text-link: #34D399;
+    --text-link: #A78BFA;
 
     /* Border Colors */
-    --border-default: #27272A;
-    --border-subtle: #1F1F23;
-    --border-focus: #34D399;
-    --border-hover: #3F3F46;
+    --border-default: #2A2440;
+    --border-subtle: #1E1A30;
+    --border-focus: #A78BFA;
+    --border-hover: #3D3560;
 
     /* Status Colors */
     --status-success: #34D399;
@@ -197,10 +212,11 @@
     --status-error-light: #7F1D1D;
     --status-info: #60A5FA;
     --status-info-light: #1E3A5F;
+    --status-danger: var(--status-error);
 
     /* Tag Colors */
-    --tag-purple: #064E3B;
-    --tag-purple-text: #34D399;
+    --tag-purple: #2D1F5E;
+    --tag-purple-text: #A78BFA;
     --tag-green: #064E3B;
     --tag-green-text: #34D399;
     --tag-blue: #1E3A5F;
@@ -212,12 +228,12 @@
     --tag-red: #7F1D1D;
     --tag-red-text: #FB7185;
 
-    /* Shadows */
-    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.35), 0 1px 2px -1px rgba(0, 0, 0, 0.35);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.35);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.35);
+    /* Shadows — deeper for dark */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
 
     /* Legacy token mapping for backwards compatibility */
     --ds-background: var(--surface-page);
@@ -233,6 +249,10 @@
     --ds-border: var(--border-default);
     --ds-muted-foreground: var(--text-secondary);
     --ds-shadow-sm: var(--shadow-sm);
+
+    /* Alias for design system */
+    --brand-primary: var(--color-primary);
+    --brand-subtle: var(--color-primary-light);
 }
 
 /* ============================================
@@ -259,7 +279,7 @@
 
 .btn:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 157, 70, 0.2);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
 }
 
 .btn-primary {
@@ -407,7 +427,7 @@
 .input:focus {
     outline: none;
     border-color: var(--border-focus);
-    box-shadow: 0 0 0 3px rgba(0, 157, 70, 0.1);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 /* Avatar styles */
